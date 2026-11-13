@@ -1,0 +1,21 @@
+MAGEDAGBOK – SLIK TAR DU APPEN I BRUK PÅ IPHONE
+
+Appen er en web-app. Den må ligge på en nettadresse (https) én gang, slik at
+iPhone kan installere den. Dataene dine lagres likevel BARE på telefonen.
+Nettstedet inneholder bare selve appen, aldri dataene dine.
+
+Filene i denne mappen:
+  index.html            selve appen
+  sw.js                 gjør at appen virker uten nett
+  manifest.webmanifest  navn og ikon for hjemskjermen
+  icon-180.png, icon-512.png
+
+Når appen ligger på en https-adresse:
+  1. Åpne adressen i Safari på iPhone.
+  2. Trykk Del-knappen (firkant med pil opp) og velg «Legg til på Hjem-skjerm».
+  3. Åpne appen fra ikonet på hjemskjermen. Bruk den alltid derfra.
+     Data i en vanlig Safari-fane er adskilt fra appen på hjemskjermen.
+  4. Ta en sikkerhetskopi jevnlig: Mer → Lag sikkerhetskopi → Arkiver i Filer.
+     Sletter du appen fra hjemskjermen, sletter du også dataene.
+
+Appen sender ingen data noe sted og bruker ingen eksterne tjenester.

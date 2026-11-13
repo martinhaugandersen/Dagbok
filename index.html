@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self'; manifest-src 'self'; worker-src 'self'">
+<meta name="theme-color" content="#007272">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Magedagbok">
+<meta name="format-detection" content="telephone=no">
+<title>Magedagbok</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<style>
+:root{--sea:#007272;--ocean:#00343e;--mint:#a5e1d2;--pale:#e9f6f2;--summer:#28b482;--red:#dc2a2a;--yellow:#fdbb31;--bg:#f2f6f5;--card:#fff;--txt:#17292c;--mut:#5e7275;--line:#dde6e4;--soft:#eef2f1;--tab:58px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font:16px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+header.top{position:sticky;top:0;z-index:5;background:var(--sea);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 16px 11px}
+header.top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.2px}
+main{padding:12px 12px calc(var(--tab) + env(safe-area-inset-bottom) + 24px);max-width:640px;margin:0 auto}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;display:flex;background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav.tabs a{flex:1;text-align:center;padding:7px 0 6px;color:var(--mut);text-decoration:none;font-size:11px;font-weight:600}
+nav.tabs svg{display:block;margin:0 auto 2px;width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs a.on{color:var(--sea)}
+.card{background:var(--card);border-radius:14px;padding:14px;margin:0 0 12px;box-shadow:0 1px 2px rgba(0,40,40,.07)}
+.card h2{margin:0 0 10px;font-size:17px;color:var(--ocean)}
+p{margin:8px 0}
+textarea,input[type=text],input[type=search],input[type=time],input[type=date]{width:100%;font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--txt);-webkit-appearance:none;appearance:none}
+textarea{resize:vertical;min-height:62px}
+textarea:focus,input:focus{outline:2px solid var(--mint);border-color:var(--sea)}
+.row{display:flex;gap:8px;align-items:center;margin-top:10px}
+.grow{flex:1}
+label.time{display:flex;align-items:center;gap:6px;color:var(--mut);font-size:14px}
+label.time input{width:112px;padding:8px 10px}
+button{font:inherit;border:0;border-radius:10px;cursor:pointer;color:inherit}
+.primary{background:var(--sea);color:#fff;font-weight:700;padding:11px 20px}
+.primary:disabled{opacity:.35}
+.secondary{background:var(--pale);color:var(--sea);font-weight:600;padding:10px 14px}
+.danger-btn{background:#fde8e8;color:var(--red);font-weight:600;padding:10px 14px}
+.link{background:none;color:var(--sea);padding:6px 0;font-weight:600;text-decoration:none;display:inline-block;font-size:15px}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.type{background:var(--tb);border:2px solid transparent;padding:11px 6px;text-align:center}
+.type b{display:block;font-size:17px}.type small{color:#3c4f52;font-size:12px}
+.type.on{border-color:var(--fg);box-shadow:inset 0 0 0 2px var(--fg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{background:var(--soft);padding:8px 14px;border-radius:999px;font-weight:600;font-size:14px}
+.chip.on{background:var(--sea);color:#fff}
+.chip.red.on{background:var(--red)}
+.scale{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin:6px 0 12px}
+.scale button{padding:9px 0;font-weight:700;font-size:14px;background:var(--soft)}
+.scale button.on{color:#fff}
+.lbl{font-size:14px;font-weight:600;color:var(--ocean);margin-top:4px}.lbl span{font-weight:400;color:var(--mut)}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tag{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--pale);color:var(--sea);font-weight:600;white-space:nowrap}
+.tag.unk{background:#fff1c2;color:#7a4b00}.tag.fac{background:#e6eefc;color:#2a4d9b}.tag.red{background:#fde8e8;color:var(--red)}.tag.grey{background:var(--soft);color:var(--mut)}
+.preview{font-size:13px;color:var(--mut);margin-top:6px}
+.entry{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line);width:100%;background:none;text-align:left;border-radius:0}
+.entry:first-of-type{border-top:0}
+.entry .t{font-variant-numeric:tabular-nums;color:var(--mut);width:44px;flex:none;font-size:14px;padding-top:1px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:3px;vertical-align:-1px}
+.daynav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.daynav button{background:#fff;width:44px;height:42px;font-size:24px;line-height:1;color:var(--sea);box-shadow:0 1px 2px rgba(0,40,40,.07)}
+.daynav button:disabled{opacity:.3}
+.daylabel{font-weight:700;font-size:18px;text-align:center;color:var(--ocean)}
+.daylabel small{display:block;font-weight:500;color:var(--mut);font-size:13px}
+.daylabel .link{font-size:13px;padding:0}
+.warn{background:#fde8e8;color:#8a1414;padding:10px 12px;border-radius:10px;margin-top:10px;font-size:14px}
+.note{background:var(--pale);color:var(--ocean);padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:12px}
+.banner{background:#ffe9a8;color:#3d2a00;padding:10px 12px;border-radius:10px;font-size:14px;margin-bottom:12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.banner button{flex:none}
+.hidden{display:none!important}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:var(--bg);border-radius:10px;padding:10px}
+.kpi b{display:block;font-size:22px;color:var(--ocean)}.kpi span{font-size:12px;color:var(--mut)}
+.bar{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:14px}
+.bar .bl{width:72px;font-weight:600}.bar .bt{flex:1;height:18px;background:var(--soft);border-radius:9px;overflow:hidden}.bar .bt i{display:block;height:100%;border-radius:9px}
+.bar .bv{width:70px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mut);font-size:13px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}
+table.t th,table.t td{padding:7px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+table.t th:first-child,table.t td:first-child{text-align:left;white-space:normal}
+table.t th{color:var(--mut);font-weight:600}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.trig{border-top:1px solid var(--line);padding:10px 0}
+.trig.first{border-top:0}
+.trh{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.pill{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.p-tydelig{background:var(--red);color:#fff}.p-mulig{background:var(--yellow);color:#3d2a00}.p-ingen{background:#d3efe3;color:#145c3c}.p-lite{background:var(--soft);color:#8a9a9c}
+.trd{font-size:14px;margin-top:4px}.trn{font-size:12px;color:var(--mut)}
+.status{font-size:12px;font-weight:700;padding:2px 8px;border-radius:6px}
+.s-ja{background:#ffe3cc;color:#8a3b00}.s-nei{background:var(--soft);color:var(--mut)}
+.hrow{display:flex;gap:12px;width:100%;background:#fff;text-align:left;padding:12px;margin-bottom:8px;border-radius:12px;box-shadow:0 1px 2px rgba(0,40,40,.07)}
+.hdate{width:56px;flex:none;font-weight:700;color:var(--ocean);text-transform:capitalize}.hdate small{display:block;font-weight:500;color:var(--mut)}
+.hinfo{font-size:14px}.hinfo .m{color:var(--mut);margin-top:2px}
+.menu > *{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;padding:13px 2px;border-top:1px solid var(--line);background:none;text-decoration:none;text-align:left;border-radius:0;font-size:16px;color:var(--txt)}
+.menu > :first-child{border-top:0}
+.menu .sub{font-size:13px;color:var(--mut);text-align:right}
+.sheet-bg{position:fixed;inset:0;background:rgba(0,30,35,.45);z-index:20;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:#fff;width:100%;max-width:640px;border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));max-height:90vh;overflow:auto}
+.sheet h3{margin:0 0 12px;color:var(--ocean)}
+.catgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.cat{background:var(--soft);padding:9px 10px;text-align:left;font-size:14px;display:flex;justify-content:space-between;gap:6px}
+.cat.x{background:var(--sea);color:#fff}.cat.neg{background:#fde8e8;color:var(--red)}
+.seg{display:flex;background:var(--soft);border-radius:10px;padding:3px;gap:3px;margin-top:6px}
+.seg button{flex:1;padding:8px 4px;background:none;font-size:14px;font-weight:600;color:var(--mut)}
+.seg button.on{background:#fff;color:var(--sea);box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.wordrow{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-top:1px solid var(--line);width:100%;background:none;text-align:left;border-radius:0}
+.wordrow b{font-weight:600}.wordrow .tags{margin:0;justify-content:flex-end}
+.step{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--line)}
+.step:first-of-type{border-top:0}
+.stp{display:flex;align-items:center;gap:8px;flex:none}
+.stp button{width:40px;height:40px;background:var(--pale);color:var(--sea);font-size:20px;font-weight:700}
+.stp span{min-width:26px;text-align:center;font-weight:700;font-size:18px}
+.mut{color:var(--mut)}
+ul.flags{margin:6px 0;padding-left:20px}ul.flags li{margin:4px 0}
+#toast{position:fixed;left:50%;bottom:calc(var(--tab) + env(safe-area-inset-bottom) + 16px);transform:translate(-50%,16px);background:var(--ocean);color:#fff;padding:10px 18px;border-radius:999px;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:30}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+@media print{nav.tabs,header.top,.noprint,.banner,.note{display:none!important}body,html{background:#fff}main{padding:0;max-width:none}.card{box-shadow:none;border:1px solid #ccc;break-inside:avoid}}
+
+</style>
+</head>
+<body>
+<header class="top"><h1 id="title">Magedagbok</h1></header>
+<main id="view"></main>
+<nav class="tabs" aria-label="Hovedmeny">
+ <a href="#logg" data-v="logg"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Logg</a>
+ <a href="#historikk" data-v="historikk"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Historikk</a>
+ <a href="#analyse" data-v="analyse"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 16v-4M12 16V8M17 16v-7"/></svg>Analyse</a>
+ <a href="#mer" data-v="mer"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>Mer</a>
+</nav>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+/* Magedagbok – kjerne: tolkning av fritekst og analyse. Ingen data forlater enheten. */
+(function (G) {
+  'use strict';
+  const CATS = [
+    ['M', 'Melk/laktose', 'Melk', 'Melk, yoghurt, rømme, kesam, is, myke oster, brunost', 'FODMAP: laktose'],
+    ['H', 'Hvete/rug/bygg', 'Hvete', 'Brød, pasta, knekkebrød, kaker, pizza, couscous', 'FODMAP: fruktaner'],
+    ['L', 'Løk/hvitløk', 'Løk', 'Løk, hvitløk, purre – også i saus, taco, pizza, curry, pesto', 'FODMAP: fruktaner'],
+    ['B', 'Bønner/linser', 'Bønner', 'Bønner, linser, kikerter, erter, hummus, falafel', 'FODMAP: GOS'],
+    ['F', 'Fruktose-frukt', 'Fruktose', 'Eple, pære, mango, vannmelon, honning, juice, tørket frukt', 'FODMAP: fruktose'],
+    ['P', 'Sukkerfritt/polyoler', 'Polyoler', 'Sukkerfri tyggegummi og pastiller, plommer, sopp, blomkål, avokado', 'FODMAP: polyoler'],
+    ['K', 'Kaffe/koffein', 'Kaffe', 'Kaffe, espresso, latte, cola, energidrikk', 'Stimulerer tarmbevegelser'],
+    ['A', 'Alkohol', 'Alkohol', 'Øl, vin, brennevin, cider', 'Kan irritere tarmen og gi løsere avføring'],
+    ['T', 'Fet/fritert mat', 'Fet mat', 'Pommes frites, chips, burger, pølse, bacon, ribbe, fet saus', 'Forsterker tarmrefleksen etter måltid'],
+    ['S', 'Sterk/krydret', 'Sterk', 'Chili, sterk curry, taco, kimchi, sriracha', 'Kan gi smerter og svie'],
+    ['C', 'Kullsyre', 'Kullsyre', 'Brus, mineralvann, øl, musserende vin', 'Gir luft og oppblåsthet'],
+  ];
+  const FACT = [
+    ['X', 'Stress', 'Stress', '«stress», «travel», «styremøte», «presset» …', 'Stress påvirker tarmen direkte'],
+    ['N', 'Dårlig søvn', 'Dårlig søvn', '«sov dårlig», «lite søvn», «kort natt» …', 'Dårlig søvn kan forsterke plagene'],
+    ['R', 'Trening', 'Trening', '«trening», «løpetur», «gåtur», «sykling» …', 'Fysisk aktivitet kan dempe plagene'],
+  ];
+  const TYPES = [
+    { id: 'Hard', bri: 'Bristol 1–2', desc: 'Harde klumper eller klumpete pølse – tung å få ut', col: '#b5652b', bg: '#f3cba5' },
+    { id: 'Normal', bri: 'Bristol 3–5', desc: 'Formet og myk – pølseformet, eller myke klumper med klare kanter', col: '#1e8a5a', bg: '#c8ebdd' },
+    { id: 'Løs', bri: 'Bristol 6', desc: 'Grøtaktig, uten fast form', col: '#d94a00', bg: '#ffddb8' },
+    { id: 'Flytende', bri: 'Bristol 7', desc: 'Vannaktig, ingen faste biter', col: '#c42222', bg: '#f7c4c4' },
+  ];
+  const STOP = new Set(('med og en et ei to tre fire fem seks i på av til fra litt mye noe noen glass kopp kopper skive skiver stk ' +
+    'porsjon porsjoner stor store liten lite små halv halvt bit biter neve boks pose dl gram uten etter før hjemme jobb jobben ' +
+    'kantina kantine lunsj middag frokost kvelds kveldsmat mellommåltid snacks rester god godt også samt eller som var ble har ' +
+    'hadde inn ut opp den det de min mitt mine dobbel ekstra fersk ferske kokt kokte stekt stekte grillet ovnsbakt hjemmelaget ' +
+    'rå restemat igjen går dag dagen kveld morgen natt vanlig vanlige drakk spiste fikk tok bare').split(' '));
+  const DAY = 864e5;
+
+  const parse = s => { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d); };
+  const fromMs = ms => new Date(ms).toISOString().slice(0, 10);
+  const addDays = (s, n) => fromMs(parse(s) + n * DAY);
+  const diffDays = (a, b) => Math.round((parse(b) - parse(a)) / DAY);
+  const monday = s => { const wd = (new Date(parse(s)).getUTCDay() + 6) % 7; return addDays(s, -wd); };
+  function isoWeek(s) {
+    const d = new Date(parse(s)); const wd = (d.getUTCDay() + 6) % 7;
+    d.setUTCDate(d.getUTCDate() - wd + 3);
+    const y = d.getUTCFullYear(); const j = new Date(Date.UTC(y, 0, 4));
+    return 1 + Math.round(((d - j) / DAY - 3 + ((j.getUTCDay() + 6) % 7)) / 7);
+  }
+  function localToday() { const t = new Date(); return fromMs(Date.UTC(t.getFullYear(), t.getMonth(), t.getDate())); }
+
+  function parseCodes(codes) {
+    const c = {}; let neg = false;
+    for (const ch of codes || '') { if (ch === '-') { neg = true; continue; } c[ch] = neg ? -1 : 1; }
+    return c;
+  }
+  const norm = t => ' ' + String(t || '').toLowerCase().replace(/[,.\/+()\-:;!?\n\r\t]/g, ' ').replace(/\s+/g, ' ').trim() + ' ';
+  /* «uten X» og «uten X og Y»: ordene etter «uten» tas ut av teksten, og kategoriene deres oppheves. */
+  function splitNeg(n) {
+    const keep = [], neg = []; let skip = 0;
+    for (const w of n.trim().split(' ')) {
+      if (w === 'uten') { skip = 1; continue; }
+      if (skip === 1) { neg.push(w); skip = 2; continue; }
+      if (skip === 2) { if (w === 'og' || w === 'eller') { skip = 1; continue; } skip = 0; }
+      keep.push(w);
+    }
+    return [' ' + keep.join(' ') + ' ', neg.length ? ' ' + neg.join(' ') + ' ' : ''];
+  }
+  const stripNeg = n => splitNeg(n)[0];
+  function termOf(w) {
+    const s = String(w.w || '').toLowerCase().trim().replace(/\s+/g, ' ');
+    if (!s) return null;
+    return w.m === 'H' ? ' ' + s + ' ' : w.m === 'O' ? ' ' + s : s;
+  }
+  function tag(text, words) {
+    const [n, ng] = splitNeg(norm(text)); const sc = {}; const hits = []; const veto = new Set();
+    for (const w of words) {
+      const t = termOf(w); if (!t) continue;
+      if (n.includes(t)) { hits.push(w.w); for (const k in w.c) sc[k] = (sc[k] || 0) + w.c[k]; }
+      if (ng && ng.includes(t)) for (const k in w.c) if (w.c[k] > 0) veto.add(k);
+    }
+    return { known: hits.length > 0, cats: Object.keys(sc).filter(k => sc[k] > 0 && !veto.has(k)), hits, negated: !!ng };
+  }
+  function unknownWords(meals, words) {
+    const phrases = words.map(w => ({ t: termOf(w), w })).filter(x => x.t && x.t.trim().includes(' '));
+    const cnt = {};
+    for (const m of meals) {
+      const n = norm(m.text);
+      const cover = new Set();
+      for (const p of phrases) if (n.includes(p.t)) p.t.trim().split(' ').forEach(x => cover.add(x));
+      for (const tok of n.trim().split(' ')) {
+        if (tok.length < 3 || STOP.has(tok) || /\d/.test(tok) || cover.has(tok)) continue;
+        if (!tag(tok, words).known) cnt[tok] = (cnt[tok] || 0) + 1;
+      }
+    }
+    return Object.entries(cnt).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'nb'));
+  }
+
+  const mean = a => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : null);
+  const isNum = v => typeof v === 'number' && !isNaN(v);
+  function hasDay(d) { return d && (isNum(d.pain) || isNum(d.bloat) || d.relief || (d.note && d.note.trim())); }
+
+  function signal(t, minD) {
+    if (Math.min(t.nWith, t.nWithout) < minD) return 'For lite data';
+    const mm = [t.painDiff, t.bloatDiff].filter(isNum);
+    const mx = mm.length ? Math.max(...mm) : 0;
+    if (mx >= 2) return 'Tydelig signal';
+    if (mx >= 1 || (isNum(t.looseDiff) && t.looseDiff >= 0.2)) return 'Mulig signal';
+    return 'Ingen tydelig';
+  }
+
+  function analyze(S, today) {
+    today = today || localToday();
+    const st = Object.assign({ threshold: 3, minDays: 5, window: 2 }, S.settings || {});
+    const words = S.words || [];
+    const meals = (S.meals || []).map(m => Object.assign({}, m, { t: tag(m.text, words) }));
+    const stools = S.stools || [];
+    const days = S.days || {};
+    const dayKeys = Object.keys(days).filter(k => hasDay(days[k]));
+    const all = [...meals.map(m => m.date), ...stools.map(s => s.date), ...dayKeys].sort();
+    const res = { empty: !all.length, settings: st, today };
+    const nUnknown = meals.filter(m => !m.t.known).length;
+    if (res.empty) return Object.assign(res, { key: { symptomDays: 0, meals: 0, unknownMeals: 0, visits: 0, redFlags: 0 }, unknown: [] });
+    const d0 = all[0], d1 = all[all.length - 1];
+    const mealsBy = {}, stoolsBy = {};
+    meals.forEach(m => (mealsBy[m.date] = mealsBy[m.date] || []).push(m));
+    stools.forEach(s => (stoolsBy[s.date] = stoolsBy[s.date] || []).push(s));
+    const rows = [];
+    for (let d = d0; d <= d1; d = addDays(d, 1)) {
+      const ss = stoolsBy[d] || []; const dd = days[d] || {};
+      const r = {
+        date: d, visits: ss.length, hard: ss.filter(s => s.type === 'Hard').length,
+        loose: ss.filter(s => s.type === 'Løs' || s.type === 'Flytende').length,
+        liquid: ss.filter(s => s.type === 'Flytende').length, urgent: ss.filter(s => s.urgent).length,
+        nMeals: (mealsBy[d] || []).length, pain: isNum(dd.pain) ? dd.pain : null, bloat: isNum(dd.bloat) ? dd.bloat : null,
+        relief: dd.relief || null, exp: {}, fac: {},
+      };
+      for (const [c] of CATS) {
+        let n = 0;
+        for (let k = 0; k < st.window; k++) for (const m of mealsBy[addDays(d, -k)] || []) if (m.t.cats.includes(c)) n++;
+        r.exp[c] = n;
+      }
+      const note = dd.note && dd.note.trim() ? tag(dd.note, words).cats : [];
+      for (const [f] of FACT) r.fac[f] = note.includes(f) ? 1 : 0;
+      rows.push(r);
+    }
+    const symptom = rows.filter(r => r.pain !== null);
+    const sDates = stools.map(s => s.date).sort();
+    const counts = {}; TYPES.forEach(t => (counts[t.id] = stools.filter(s => s.type === t.id).length));
+    const sum = TYPES.reduce((a, t) => a + counts[t.id], 0);
+    const looseN = counts['Løs'] + counts['Flytende'];
+    const painDays = symptom.filter(r => r.pain >= st.threshold).length;
+    const ja = Object.values(days).filter(d => d && d.relief === 'Ja').length;
+    const nei = Object.values(days).filter(d => d && d.relief === 'Nei').length;
+    res.key = {
+      from: d0, to: d1, symptomDays: symptom.length, meals: meals.length, unknownMeals: nUnknown, visits: stools.length,
+      visitsPerDay: stools.length ? stools.length / (diffDays(sDates[0], sDates[sDates.length - 1]) + 1) : null,
+      avgPain: mean(symptom.map(r => r.pain)), avgBloat: mean(rows.filter(r => r.bloat !== null).map(r => r.bloat)),
+      painDaysPerWeek: symptom.length ? (painDays / symptom.length) * 7 : null,
+      redFlags: stools.filter(s => s.blood || /blod/i.test(s.note || '')).length,
+    };
+    res.dist = { counts, sum, loose: looseN, hardShare: sum ? counts.Hard / sum : null, looseShare: sum ? looseN / sum : null };
+    const hs = res.dist.hardShare, ls = res.dist.looseShare;
+    res.rome = {
+      painDaysPerWeek: res.key.painDaysPerWeek, relief: ja + nei ? ja / (ja + nei) : null, hardShare: hs, looseShare: ls,
+      pattern: sum < 10 ? 'For lite data (trenger minst 10 besøk)' :
+        hs > 0.25 && ls <= 0.25 ? 'Forstoppelsesdominert (IBS-C-mønster)' :
+          ls > 0.25 && hs <= 0.25 ? 'Diarédominert (IBS-D-mønster)' :
+            hs > 0.25 && ls > 0.25 ? 'Blandet (IBS-M-mønster)' : 'Ingen dominans (IBS-U-mønster / normalt)',
+    };
+    const trig = [];
+    const one = (code, name, kind, get) => {
+      const base = kind === 'mat' ? rows.filter(r => r.nMeals > 0) : rows;
+      const W = base.filter(r => get(r) > 0), O = base.filter(r => get(r) === 0);
+      const avg = (g, k) => mean(g.filter(r => r[k] !== null).map(r => r[k]));
+      const share = g => { const v = g.reduce((a, r) => a + r.visits, 0); return v ? g.reduce((a, r) => a + r.loose, 0) / v : null; };
+      const t = {
+        code, name, kind, nWith: W.filter(r => r.pain !== null).length, nWithout: O.filter(r => r.pain !== null).length,
+        painWith: avg(W, 'pain'), painWithout: avg(O, 'pain'), bloatWith: avg(W, 'bloat'), bloatWithout: avg(O, 'bloat'),
+        looseWith: share(W), looseWithout: share(O),
+      };
+      const df = (a, b) => (isNum(a) && isNum(b) ? a - b : null);
+      t.painDiff = df(t.painWith, t.painWithout); t.bloatDiff = df(t.bloatWith, t.bloatWithout); t.looseDiff = df(t.looseWith, t.looseWithout);
+      t.signal = signal(t, st.minDays);
+      trig.push(t);
+    };
+    CATS.forEach(([c, n]) => one(c, n, 'mat', r => r.exp[c]));
+    FACT.forEach(([f, n]) => one(f, n, 'faktor', r => r.fac[f]));
+    res.triggers = trig;
+    const weeks = [];
+    for (let w = monday(d0); w <= d1; w = addDays(w, 7)) {
+      const g = rows.filter(r => r.date >= w && r.date <= addDays(w, 6));
+      const v = g.reduce((a, r) => a + r.visits, 0);
+      const a0 = w < d0 ? d0 : w, a1 = addDays(w, 6) < today ? addDays(w, 6) : today;
+      const elapsed = a1 >= a0 ? diffDays(a0, a1) + 1 : 0;
+      const ps = g.filter(r => r.pain !== null);
+      weeks.push({
+        start: w, end: addDays(w, 6), week: isoWeek(w), avgPain: mean(ps.map(r => r.pain)),
+        avgBloat: mean(g.filter(r => r.bloat !== null).map(r => r.bloat)), visitsPerDay: v && elapsed ? v / elapsed : null,
+        looseShare: v ? g.reduce((a, r) => a + r.loose, 0) / v : null, hardShare: v ? g.reduce((a, r) => a + r.hard, 0) / v : null,
+        painDays: ps.length ? ps.filter(r => r.pain >= st.threshold).length : null,
+      });
+    }
+    res.weeks = weeks;
+    res.unknown = unknownWords(meals, words);
+    res.rows = rows;
+    return res;
+  }
+
+  G.Core = { CATS, FACT, TYPES, STOP, parse, addDays, diffDays, monday, isoWeek, localToday, parseCodes, norm, stripNeg, termOf, tag, unknownWords, analyze, hasDay };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* Standard ordliste */
+const DEFAULT_WORDS = [["melk","D","M"],["laktosefri","D","-M"],["havremelk","D","-M"],["mandelmelk","D","-M"],["soyamelk","D","-M"],["rismelk","D","-M"],["kokosmelk","D","-M"],["yoghurt","D","M"],["yogurt","D","M"],["rømme","D","M"],["crème fraîche","D","M"],["creme fraiche","D","M"],["fløte","D","M"],["kesam","D","M"],["kvarg","D","M"],["cottage","D","M"],["is","H","M"],["iskrem","D","M"],["softis","D","M"],["milkshake","D","M"],["kakao","D","M"],["sjokolade","D","M"],["mørk sjokolade","D","-M"],["pudding","D","M"],["vaniljesaus","D","M"],["vaniljekrem","D","M"],["riskrem","D","M"],["risengrynsgrøt","D","M"],["kremost","D","M"],["smøreost","D","M"],["brunost","D","M"],["geitost","D","M"],["prim","H","M"],["brie","O","M"],["camembert","D","M"],["ricotta","D","M"],["mascarpone","D","M"],["grateng","D","MH"],["potetmos","D","M"],["lasagne","D","MHL"],["pannekake","D","MH"],["vaffel","D","MH"],["latte","D","MK"],["cappuccino","D","MK"],["flat white","D","MK"],["cortado","D","MK"],["macchiato","D","MK"],["butter chicken","D","ML"],["brød","D","H"],["glutenfri","D","-H"],["rundstykke","D","H"],["baguette","D","H"],["ciabatta","D","H"],["loff","O","H"],["bagel","D","H"],["toast","D","H"],["lompe","D","H"],["lefse","D","H"],["pita","O","H"],["tortilla","D","H"],["maistortilla","D","-H"],["wrap","O","H"],["pasta","D","H"],["spaghetti","D","H"],["spagetti","D","H"],["makaroni","D","H"],["nudler","D","H"],["risnudler","D","-H"],["glassnudler","D","-H"],["couscous","D","H"],["bulgur","D","H"],["pizza","D","HLT"],["taco","D","HLS"],["burger","D","HT"],["kebab","D","HLT"],["kake","O","H"],["bløtkake","D","HM"],["sjokoladekake","D","H"],["eplekake","D","H"],["kjeks","D","H"],["muffins","D","H"],["bolle","O","H"],["kanelbolle","D","H"],["skolebolle","D","HM"],["wienerbrød","D","T"],["croissant","D","HT"],["kringle","D","H"],["smultring","D","HT"],["donut","D","HT"],["pai","H","H"],["terte","D","H"],["frokostblanding","D","H"],["müsli","D","H"],["musli","D","H"],["granola","D","H"],["rug","H","H"],["bygg","H","H"],["hvete","D","H"],["spelt","D","H"],["paner","D","HT"],["fiskepinner","D","HT"],["nuggets","D","HT"],["sandwich","D","H"],["løk","D","L"],["gressløk","D","-L"],["purre","D","L"],["bolognese","D","L"],["kjøttsaus","D","L"],["aioli","D","L"],["salsa","D","L"],["guacamole","D","L"],["pesto","D","L"],["curry","D","LS"],["buljong","D","L"],["tikka","D","LS"],["con carne","D","BL"],["sin carne","D","BL"],["hummus","D","BL"],["falafel","D","BL"],["bønne","D","B"],["linse","D","B"],["kikert","D","B"],["erte","O","B"],["sukkererter","D","BF"],["edamame","D","B"],["dal","H","B"],["eple","D","F"],["pære","D","F"],["mango","D","F"],["vannmelon","D","F"],["honning","D","F"],["agave","D","F"],["juice","D","F"],["smoothie","D","F"],["rosin","D","F"],["dadler","D","F"],["fiken","D","F"],["tørket frukt","D","F"],["fruktsalat","D","F"],["kirsebær","D","FP"],["asparges","D","F"],["tyggegummi","D","P"],["tyggis","D","P"],["pastill","D","P"],["sukkerfri","D","P"],["sukkerfri brus","D","-P"],["xylitol","D","P"],["sorbitol","D","P"],["maltitol","D","P"],["plomme","D","P"],["sviske","D","P"],["fersken","D","P"],["aprikos","D","P"],["nektarin","D","P"],["bjørnebær","D","P"],["avokado","D","P"],["sopp","D","P"],["kantarell","D","P"],["sjampinjong","D","P"],["champignon","D","P"],["blomkål","D","P"],["proteinbar","D","P"],["selleri","D","P"],["kaffe","D","K"],["koffeinfri","D","-K"],["espresso","D","K"],["americano","D","K"],["mokka","D","K"],["energidrikk","D","K"],["red bull","D","K"],["monster","H","K"],["cola","D","KC"],["pepsi","D","KC"],["urge","H","KC"],["svart te","D","K"],["grønn te","D","K"],["sterk te","D","K"],["brus","D","C"],["solo","H","C"],["fanta","D","C"],["sprite","D","C"],["mineralvann","D","C"],["farris","D","C"],["selters","D","C"],["sodavann","D","C"],["kullsyre","D","C"],["champagne","D","AC"],["prosecco","D","AC"],["cava","H","AC"],["musserende","D","AC"],["cider","D","AC"],["øl","O","AC"],["pils","D","AC"],["ipa","H","AC"],["vin","O","A"],["rødvin","D","A"],["hvitvin","D","A"],["rosévin","D","A"],["rosevin","D","A"],["brennevin","D","A"],["akevitt","D","A"],["vodka","D","A"],["gin","H","A"],["whisky","D","A"],["cognac","D","A"],["likør","D","A"],["drink","O","A"],["cocktail","D","A"],["gløgg","D","A"],["alkoholfri","D","-A"],["pommes","D","T"],["frites","D","T"],["chips","D","T"],["potetgull","D","T"],["fritert","D","T"],["frityr","D","T"],["bacon","D","T"],["pølse","D","T"],["ribbe","D","T"],["pinnekjøtt","D","T"],["medister","D","T"],["fløtesaus","D","T"],["bearnaise","D","T"],["majones","D","T"],["majonnes","D","T"],["remulade","D","T"],["fet","H","T"],["chili","D","S"],["jalapeno","D","S"],["jalapeño","D","S"],["sriracha","D","S"],["tabasco","D","S"],["vindaloo","D","S"],["thai","D","S"],["indisk","D","SL"],["krydret","D","S"],["sterk mat","D","S"],["sterk saus","D","S"],["kimchi","D","S"],["wasabi","D","S"],["pepperoni","D","ST"],["harissa","D","S"],["sambal","D","S"],["peri peri","D","S"],["piri piri","D","S"],["ost","O",""],["gulost","D",""],["norvegia","D",""],["jarlsberg","D",""],["parmesan","D",""],["cheddar","D",""],["mozzarella","D",""],["feta","O",""],["smør","O",""],["egg","D",""],["omelett","D",""],["kylling","D",""],["kalkun","D",""],["laks","D",""],["fisk","D",""],["torsk","D",""],["sei","H",""],["makrell","D",""],["sild","D",""],["reke","D",""],["skinke","D",""],["kjøtt","D",""],["biff","D",""],["lam","O",""],["ris","O",""],["potet","D",""],["havre","D",""],["grøt","D",""],["quinoa","D",""],["banan","D",""],["blåbær","D",""],["jordbær","D",""],["bringebær","D",""],["appelsin","D",""],["klementin","D",""],["kiwi","D",""],["ananas","D",""],["drue","D",""],["gulrot","D",""],["agurk","D",""],["tomat","D",""],["paprika","D",""],["salat","D",""],["spinat","D",""],["brokkoli","D",""],["squash","D",""],["mais","O",""],["nøtt","D",""],["mandler","D",""],["vann","H",""],["te","H",""],["suppe","D",""],["saus","D",""],["sushi","D",""],["tofu","D",""],["leverpostei","D",""],["syltetøy","D",""],["stress","D","X"],["travel","O","X"],["deadline","D","X"],["eksamen","D","X"],["presentasjon","D","X"],["styremøte","D","X"],["konflikt","D","X"],["bekymr","D","X"],["nervøs","D","X"],["urolig","D","X"],["press","O","X"],["anspent","D","X"],["sov dårlig","D","N"],["sovet dårlig","D","N"],["dårlig søvn","D","N"],["lite søvn","D","N"],["søvnløs","D","N"],["våken i natt","D","N"],["kort natt","D","N"],["jetlag","D","N"],["trøtt","D","N"],["trening","D","R"],["trent","O","R"],["jogg","D","R"],["løp","O","R"],["gåtur","D","R"],["gym","O","R"],["styrke","O","R"],["sykl","D","R"],["svøm","D","R"],["skitur","D","R"],["padel","D","R"],["tennis","D","R"],["golf","D","R"],["yoga","D","R"],["fotball","D","R"]];
+
+/* Fiktive eksempeldata */
+const DEMO_DATA = {"meals":[{"id":"m0","date":"2026-09-28","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m1","date":"2026-09-28","time":"08:15","text":"To pils"},{"id":"m2","date":"2026-09-28","time":"11:30","text":"Sushi med laks"},{"id":"m3","date":"2026-09-28","time":"17:30","text":"Kyllingcurry med ris"},{"id":"m4","date":"2026-09-28","time":"14:30","text":"Melkesjokolade"},{"id":"m5","date":"2026-09-29","time":"07:30","text":"Knekkebrød med makrell i tomat"},{"id":"m6","date":"2026-09-29","time":"08:15","text":"Kaffe latte"},{"id":"m7","date":"2026-09-29","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m8","date":"2026-09-29","time":"17:30","text":"Kebab med pommes frites"},{"id":"m9","date":"2026-09-30","time":"07:30","text":"Brødskive med brunost"},{"id":"m10","date":"2026-09-30","time":"08:15","text":"Cola"},{"id":"m11","date":"2026-09-30","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m12","date":"2026-09-30","time":"17:30","text":"Kjøttkaker med poteter og ertestuing"},{"id":"m13","date":"2026-09-30","time":"14:30","text":"En neve nøtter"},{"id":"m14","date":"2026-09-30","time":"20:30","text":"Cola"},{"id":"m15","date":"2026-10-01","time":"07:30","text":"Knekkebrød med makrell i tomat"},{"id":"m16","date":"2026-10-01","time":"08:15","text":"Kaffe"},{"id":"m17","date":"2026-10-01","time":"11:30","text":"Sushi med laks"},{"id":"m18","date":"2026-10-01","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m19","date":"2026-10-02","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m20","date":"2026-10-02","time":"08:15","text":"Et glass rødvin"},{"id":"m21","date":"2026-10-02","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m22","date":"2026-10-02","time":"17:30","text":"Kebab med pommes frites"},{"id":"m23","date":"2026-10-02","time":"14:30","text":"Sukkerfri tyggis"},{"id":"m24","date":"2026-10-02","time":"20:30","text":"To pils"},{"id":"m25","date":"2026-10-03","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m26","date":"2026-10-03","time":"08:15","text":"Cola"},{"id":"m27","date":"2026-10-03","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m28","date":"2026-10-03","time":"17:30","text":"Kebab med pommes frites"},{"id":"m29","date":"2026-10-03","time":"14:30","text":"Et eple"},{"id":"m30","date":"2026-10-03","time":"20:30","text":"Cola"},{"id":"m31","date":"2026-10-04","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m32","date":"2026-10-04","time":"08:15","text":"Et glass rødvin"},{"id":"m33","date":"2026-10-04","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m34","date":"2026-10-04","time":"17:30","text":"Pizza"},{"id":"m35","date":"2026-10-04","time":"14:30","text":"Sukkerfri tyggis"},{"id":"m36","date":"2026-10-05","time":"07:30","text":"Havregrøt med lettmelk og banan"},{"id":"m37","date":"2026-10-05","time":"08:15","text":"Kaffe"},{"id":"m38","date":"2026-10-05","time":"11:30","text":"Sushi med laks"},{"id":"m39","date":"2026-10-05","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m40","date":"2026-10-06","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m41","date":"2026-10-06","time":"08:15","text":"Kaffe"},{"id":"m42","date":"2026-10-06","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m43","date":"2026-10-06","time":"17:30","text":"Pasta bolognese"},{"id":"m44","date":"2026-10-06","time":"14:30","text":"Melkesjokolade"},{"id":"m45","date":"2026-10-07","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m46","date":"2026-10-07","time":"08:15","text":"To pils"},{"id":"m47","date":"2026-10-07","time":"11:30","text":"Restemat fra i går"},{"id":"m48","date":"2026-10-07","time":"17:30","text":"Kjøttkaker med poteter og ertestuing"},{"id":"m49","date":"2026-10-07","time":"14:30","text":"En neve nøtter"},{"id":"m50","date":"2026-10-08","time":"07:30","text":"Brødskive med brunost"},{"id":"m51","date":"2026-10-08","time":"08:15","text":"Farris"},{"id":"m52","date":"2026-10-08","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m53","date":"2026-10-08","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m54","date":"2026-10-08","time":"14:30","text":"Sukkerfri tyggis"},{"id":"m55","date":"2026-10-09","time":"07:30","text":"Havregrøt med lettmelk og banan"},{"id":"m56","date":"2026-10-09","time":"08:15","text":"Kaffe latte"},{"id":"m57","date":"2026-10-09","time":"11:30","text":"Salat med kylling og avokado"},{"id":"m58","date":"2026-10-09","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m59","date":"2026-10-09","time":"14:30","text":"Et eple"},{"id":"m60","date":"2026-10-10","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m61","date":"2026-10-10","time":"08:15","text":"Cola"},{"id":"m62","date":"2026-10-10","time":"11:30","text":"Sushi med laks"},{"id":"m63","date":"2026-10-10","time":"17:30","text":"Kyllingcurry med ris"},{"id":"m64","date":"2026-10-10","time":"14:30","text":"En neve nøtter"},{"id":"m65","date":"2026-10-11","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m66","date":"2026-10-11","time":"08:15","text":"To pils"},{"id":"m67","date":"2026-10-11","time":"11:30","text":"Restemat fra i går"},{"id":"m68","date":"2026-10-11","time":"17:30","text":"Kjøttkaker med poteter og ertestuing"},{"id":"m69","date":"2026-10-11","time":"14:30","text":"Et eple"},{"id":"m70","date":"2026-10-12","time":"07:30","text":"Havregrøt med lettmelk og banan"},{"id":"m71","date":"2026-10-12","time":"08:15","text":"Farris"},{"id":"m72","date":"2026-10-12","time":"11:30","text":"Sushi med laks"},{"id":"m73","date":"2026-10-12","time":"17:30","text":"Pizza"},{"id":"m74","date":"2026-10-12","time":"14:30","text":"Et eple"},{"id":"m75","date":"2026-10-13","time":"07:30","text":"Knekkebrød med makrell i tomat"},{"id":"m76","date":"2026-10-13","time":"08:15","text":"Cola"},{"id":"m77","date":"2026-10-13","time":"11:30","text":"Sushi med laks"},{"id":"m78","date":"2026-10-13","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m79","date":"2026-10-13","time":"14:30","text":"Et eple"},{"id":"m80","date":"2026-10-14","time":"07:30","text":"Yoghurt naturell med blåbær og müsli"},{"id":"m81","date":"2026-10-14","time":"08:15","text":"Kaffe"},{"id":"m82","date":"2026-10-14","time":"11:30","text":"Sushi med laks"},{"id":"m83","date":"2026-10-14","time":"17:30","text":"Fiskegrateng"},{"id":"m84","date":"2026-10-14","time":"20:30","text":"Farris"},{"id":"m85","date":"2026-10-15","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m86","date":"2026-10-15","time":"08:15","text":"Et glass rødvin"},{"id":"m87","date":"2026-10-15","time":"11:30","text":"Restemat fra i går"},{"id":"m88","date":"2026-10-15","time":"17:30","text":"Kyllingcurry med ris"},{"id":"m89","date":"2026-10-15","time":"14:30","text":"Et eple"},{"id":"m90","date":"2026-10-15","time":"20:30","text":"Et glass rødvin"},{"id":"m91","date":"2026-10-16","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m92","date":"2026-10-16","time":"08:15","text":"Et glass rødvin"},{"id":"m93","date":"2026-10-16","time":"11:30","text":"Baguette med brie og skinke"},{"id":"m94","date":"2026-10-16","time":"17:30","text":"Taco med kjøttdeig og rømme"},{"id":"m95","date":"2026-10-16","time":"14:30","text":"En neve nøtter"},{"id":"m96","date":"2026-10-17","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m97","date":"2026-10-17","time":"08:15","text":"Et glass rødvin"},{"id":"m98","date":"2026-10-17","time":"11:30","text":"Salat med kylling og avokado"},{"id":"m99","date":"2026-10-17","time":"17:30","text":"Kyllingcurry med ris"},{"id":"m100","date":"2026-10-17","time":"14:30","text":"Melkesjokolade"},{"id":"m101","date":"2026-10-17","time":"20:30","text":"Cola"},{"id":"m102","date":"2026-10-18","time":"07:30","text":"Brødskive med brunost"},{"id":"m103","date":"2026-10-18","time":"08:15","text":"To pils"},{"id":"m104","date":"2026-10-18","time":"11:30","text":"Baguette med brie og skinke"},{"id":"m105","date":"2026-10-18","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m106","date":"2026-10-19","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m107","date":"2026-10-19","time":"08:15","text":"Cola"},{"id":"m108","date":"2026-10-19","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m109","date":"2026-10-19","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m110","date":"2026-10-19","time":"14:30","text":"Kanelbolle"},{"id":"m111","date":"2026-10-19","time":"20:30","text":"To pils"},{"id":"m112","date":"2026-10-20","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m113","date":"2026-10-20","time":"08:15","text":"To pils"},{"id":"m114","date":"2026-10-20","time":"11:30","text":"Restemat fra i går"},{"id":"m115","date":"2026-10-20","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m116","date":"2026-10-20","time":"14:30","text":"Et eple"},{"id":"m117","date":"2026-10-21","time":"07:30","text":"Knekkebrød med makrell i tomat"},{"id":"m118","date":"2026-10-21","time":"08:15","text":"Cola"},{"id":"m119","date":"2026-10-21","time":"11:30","text":"Restemat fra i går"},{"id":"m120","date":"2026-10-21","time":"17:30","text":"Pasta bolognese"},{"id":"m121","date":"2026-10-21","time":"14:30","text":"En neve nøtter"},{"id":"m122","date":"2026-10-22","time":"07:30","text":"Knekkebrød med makrell i tomat"},{"id":"m123","date":"2026-10-22","time":"08:15","text":"Kaffe"},{"id":"m124","date":"2026-10-22","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m125","date":"2026-10-22","time":"17:30","text":"Kyllingcurry med ris"},{"id":"m126","date":"2026-10-22","time":"14:30","text":"Kanelbolle"},{"id":"m127","date":"2026-10-23","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m128","date":"2026-10-23","time":"08:15","text":"To pils"},{"id":"m129","date":"2026-10-23","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m130","date":"2026-10-23","time":"17:30","text":"Kjøttkaker med poteter og ertestuing"},{"id":"m131","date":"2026-10-23","time":"14:30","text":"Sukkerfri tyggis"},{"id":"m132","date":"2026-10-23","time":"20:30","text":"Kaffe"},{"id":"m133","date":"2026-10-24","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m134","date":"2026-10-24","time":"08:15","text":"Cola"},{"id":"m135","date":"2026-10-24","time":"11:30","text":"Restemat fra i går"},{"id":"m136","date":"2026-10-24","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m137","date":"2026-10-24","time":"14:30","text":"Et eple"},{"id":"m138","date":"2026-10-25","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m139","date":"2026-10-25","time":"08:15","text":"To pils"},{"id":"m140","date":"2026-10-25","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m141","date":"2026-10-25","time":"17:30","text":"Pasta bolognese"},{"id":"m142","date":"2026-10-26","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m143","date":"2026-10-26","time":"08:15","text":"To pils"},{"id":"m144","date":"2026-10-26","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m145","date":"2026-10-26","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m146","date":"2026-10-26","time":"14:30","text":"Et eple"},{"id":"m147","date":"2026-10-26","time":"20:30","text":"Kaffe"},{"id":"m148","date":"2026-10-27","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m149","date":"2026-10-27","time":"08:15","text":"Farris"},{"id":"m150","date":"2026-10-27","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m151","date":"2026-10-27","time":"17:30","text":"Kyllingcurry med ris"},{"id":"m152","date":"2026-10-27","time":"14:30","text":"Et eple"},{"id":"m153","date":"2026-10-28","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m154","date":"2026-10-28","time":"08:15","text":"Kaffe"},{"id":"m155","date":"2026-10-28","time":"11:30","text":"Sushi med laks"},{"id":"m156","date":"2026-10-28","time":"17:30","text":"Kjøttkaker med poteter og ertestuing"},{"id":"m157","date":"2026-10-29","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m158","date":"2026-10-29","time":"08:15","text":"Cola"},{"id":"m159","date":"2026-10-29","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m160","date":"2026-10-29","time":"17:30","text":"Kjøttkaker med poteter og ertestuing"},{"id":"m161","date":"2026-10-29","time":"14:30","text":"Et eple"},{"id":"m162","date":"2026-10-30","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m163","date":"2026-10-30","time":"08:15","text":"Et glass rødvin"},{"id":"m164","date":"2026-10-30","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m165","date":"2026-10-30","time":"17:30","text":"Pizza"},{"id":"m166","date":"2026-10-30","time":"14:30","text":"Kanelbolle"},{"id":"m167","date":"2026-10-31","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m168","date":"2026-10-31","time":"08:15","text":"Cola"},{"id":"m169","date":"2026-10-31","time":"11:30","text":"Restemat fra i går"},{"id":"m170","date":"2026-10-31","time":"17:30","text":"Pasta bolognese"},{"id":"m171","date":"2026-10-31","time":"14:30","text":"En neve nøtter"},{"id":"m172","date":"2026-11-01","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m173","date":"2026-11-01","time":"08:15","text":"Kaffe"},{"id":"m174","date":"2026-11-01","time":"11:30","text":"Sushi med laks"},{"id":"m175","date":"2026-11-01","time":"17:30","text":"Kjøttkaker med poteter og ertestuing"},{"id":"m176","date":"2026-11-02","time":"07:30","text":"Havregrøt med lettmelk og banan"},{"id":"m177","date":"2026-11-02","time":"08:15","text":"Farris"},{"id":"m178","date":"2026-11-02","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m179","date":"2026-11-02","time":"17:30","text":"Taco med kjøttdeig og rømme"},{"id":"m180","date":"2026-11-03","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m181","date":"2026-11-03","time":"08:15","text":"Farris"},{"id":"m182","date":"2026-11-03","time":"11:30","text":"Restemat fra i går"},{"id":"m183","date":"2026-11-03","time":"17:30","text":"Kebab med pommes frites"},{"id":"m184","date":"2026-11-03","time":"20:30","text":"To pils"},{"id":"m185","date":"2026-11-04","time":"07:30","text":"Brødskive med brunost"},{"id":"m186","date":"2026-11-04","time":"08:15","text":"Farris"},{"id":"m187","date":"2026-11-04","time":"11:30","text":"Salat med kylling og avokado"},{"id":"m188","date":"2026-11-04","time":"17:30","text":"Kjøttkaker med poteter og ertestuing"},{"id":"m189","date":"2026-11-05","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m190","date":"2026-11-05","time":"08:15","text":"Kaffe latte"},{"id":"m191","date":"2026-11-05","time":"11:30","text":"Baguette med brie og skinke"},{"id":"m192","date":"2026-11-05","time":"17:30","text":"Kyllingcurry med ris"},{"id":"m193","date":"2026-11-06","time":"07:30","text":"To brødskiver med gulost og skinke"},{"id":"m194","date":"2026-11-06","time":"08:15","text":"Kaffe latte"},{"id":"m195","date":"2026-11-06","time":"11:30","text":"Baguette med brie og skinke"},{"id":"m196","date":"2026-11-06","time":"17:30","text":"Fiskegrateng"},{"id":"m197","date":"2026-11-06","time":"14:30","text":"Et eple"},{"id":"m198","date":"2026-11-07","time":"07:30","text":"Yoghurt naturell med blåbær og müsli"},{"id":"m199","date":"2026-11-07","time":"08:15","text":"Kaffe latte"},{"id":"m200","date":"2026-11-07","time":"11:30","text":"Brødskiver med leverpostei og agurk"},{"id":"m201","date":"2026-11-07","time":"17:30","text":"Kebab med pommes frites"},{"id":"m202","date":"2026-11-08","time":"07:30","text":"Eggerøre og glutenfritt brød"},{"id":"m203","date":"2026-11-08","time":"08:15","text":"To pils"},{"id":"m204","date":"2026-11-08","time":"11:30","text":"Restemat fra i går"},{"id":"m205","date":"2026-11-08","time":"17:30","text":"Kebab med pommes frites"},{"id":"m206","date":"2026-11-08","time":"14:30","text":"Sukkerfri tyggis"},{"id":"m207","date":"2026-11-09","time":"07:30","text":"Knekkebrød med makrell i tomat"},{"id":"m208","date":"2026-11-09","time":"08:15","text":"To pils"},{"id":"m209","date":"2026-11-09","time":"11:30","text":"Linsesuppe med hvitløk"},{"id":"m210","date":"2026-11-09","time":"17:30","text":"Laks med poteter og brokkoli"},{"id":"m211","date":"2026-11-10","time":"07:30","text":"Knekkebrød med makrell i tomat"},{"id":"m212","date":"2026-11-10","time":"08:15","text":"Kaffe"},{"id":"m213","date":"2026-11-10","time":"11:30","text":"Restemat fra i går"},{"id":"m214","date":"2026-11-10","time":"17:30","text":"Pizza"},{"id":"m215","date":"2026-11-10","time":"20:30","text":"Et glass rødvin"},{"id":"m216","date":"2026-11-11","time":"07:30","text":"Knekkebrød med makrell i tomat"},{"id":"m217","date":"2026-11-11","time":"08:15","text":"Kaffe"},{"id":"m218","date":"2026-11-11","time":"11:30","text":"Restemat fra i går"},{"id":"m219","date":"2026-11-11","time":"17:30","text":"Taco med kjøttdeig og rømme"},{"id":"m220","date":"2026-11-11","time":"14:30","text":"En neve nøtter"},{"id":"m221","date":"2026-11-12","time":"07:30","text":"Yoghurt naturell med blåbær og müsli"},{"id":"m222","date":"2026-11-12","time":"08:15","text":"Kaffe latte"},{"id":"m223","date":"2026-11-12","time":"11:30","text":"Salat med kylling og avokado"},{"id":"m224","date":"2026-11-12","time":"17:30","text":"Pasta bolognese"},{"id":"m225","date":"2026-11-12","time":"14:30","text":"Et eple"},{"id":"m226","date":"2026-11-12","time":"20:30","text":"To pils"}],"stools":[{"id":"s0","date":"2026-09-28","time":"07:00","type":"Flytende","urgent":true,"blood":false,"note":""},{"id":"s1","date":"2026-09-28","time":"12:30","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s2","date":"2026-09-29","time":"07:15","type":"Flytende","urgent":false,"blood":false,"note":""},{"id":"s3","date":"2026-09-29","time":"12:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s4","date":"2026-09-30","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s5","date":"2026-09-30","time":"12:45","type":"Løs","urgent":false,"blood":false,"note":""},{"id":"s6","date":"2026-10-01","time":"07:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s7","date":"2026-10-01","time":"12:45","type":"Løs","urgent":false,"blood":false,"note":""},{"id":"s8","date":"2026-10-02","time":"07:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s9","date":"2026-10-02","time":"12:00","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s10","date":"2026-10-03","time":"07:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s11","date":"2026-10-04","time":"07:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s12","date":"2026-10-05","time":"07:00","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s13","date":"2026-10-05","time":"12:00","type":"Flytende","urgent":false,"blood":false,"note":""},{"id":"s14","date":"2026-10-06","time":"07:30","type":"Flytende","urgent":true,"blood":false,"note":""},{"id":"s15","date":"2026-10-06","time":"12:00","type":"Flytende","urgent":false,"blood":false,"note":""},{"id":"s16","date":"2026-10-07","time":"07:00","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s17","date":"2026-10-07","time":"12:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s18","date":"2026-10-07","time":"17:45","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s19","date":"2026-10-08","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s20","date":"2026-10-08","time":"12:30","type":"Løs","urgent":false,"blood":false,"note":""},{"id":"s21","date":"2026-10-09","time":"07:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s22","date":"2026-10-10","time":"07:30","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s23","date":"2026-10-10","time":"12:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s24","date":"2026-10-11","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s25","date":"2026-10-12","time":"07:45","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s26","date":"2026-10-12","time":"12:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s27","date":"2026-10-13","time":"07:00","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s28","date":"2026-10-13","time":"12:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s29","date":"2026-10-13","time":"17:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s30","date":"2026-10-14","time":"07:30","type":"Løs","urgent":false,"blood":false,"note":""},{"id":"s31","date":"2026-10-14","time":"12:45","type":"Løs","urgent":false,"blood":false,"note":""},{"id":"s32","date":"2026-10-15","time":"07:30","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s33","date":"2026-10-15","time":"12:15","type":"Flytende","urgent":true,"blood":false,"note":""},{"id":"s34","date":"2026-10-16","time":"07:45","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s35","date":"2026-10-16","time":"12:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s36","date":"2026-10-17","time":"07:00","type":"Flytende","urgent":true,"blood":false,"note":""},{"id":"s37","date":"2026-10-17","time":"12:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s38","date":"2026-10-18","time":"07:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s39","date":"2026-10-18","time":"12:30","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s40","date":"2026-10-19","time":"07:00","type":"Flytende","urgent":false,"blood":false,"note":""},{"id":"s41","date":"2026-10-19","time":"12:00","type":"Flytende","urgent":true,"blood":false,"note":""},{"id":"s42","date":"2026-10-20","time":"07:00","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s43","date":"2026-10-20","time":"12:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s44","date":"2026-10-21","time":"07:30","type":"Hard","urgent":false,"blood":false,"note":""},{"id":"s45","date":"2026-10-21","time":"12:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s46","date":"2026-10-22","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s47","date":"2026-10-23","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s48","date":"2026-10-24","time":"07:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s49","date":"2026-10-24","time":"12:00","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s50","date":"2026-10-25","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s51","date":"2026-10-26","time":"07:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s52","date":"2026-10-27","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s53","date":"2026-10-28","time":"07:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s54","date":"2026-10-29","time":"07:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s55","date":"2026-10-30","time":"07:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s56","date":"2026-10-31","time":"07:00","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s57","date":"2026-11-01","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s58","date":"2026-11-02","time":"07:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s59","date":"2026-11-02","time":"12:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s60","date":"2026-11-03","time":"07:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s61","date":"2026-11-03","time":"12:15","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s62","date":"2026-11-04","time":"07:00","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s63","date":"2026-11-04","time":"12:30","type":"Flytende","urgent":false,"blood":false,"note":""},{"id":"s64","date":"2026-11-05","time":"07:15","type":"Flytende","urgent":true,"blood":false,"note":""},{"id":"s65","date":"2026-11-06","time":"07:30","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s66","date":"2026-11-07","time":"07:15","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s67","date":"2026-11-07","time":"12:45","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s68","date":"2026-11-07","time":"17:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s69","date":"2026-11-08","time":"07:45","type":"Flytende","urgent":false,"blood":false,"note":""},{"id":"s70","date":"2026-11-08","time":"12:00","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s71","date":"2026-11-09","time":"07:15","type":"Hard","urgent":false,"blood":false,"note":""},{"id":"s72","date":"2026-11-10","time":"07:15","type":"Normal","urgent":false,"blood":false,"note":""},{"id":"s73","date":"2026-11-11","time":"07:00","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s74","date":"2026-11-11","time":"12:15","type":"Løs","urgent":true,"blood":false,"note":""},{"id":"s75","date":"2026-11-11","time":"17:00","type":"Løs","urgent":false,"blood":false,"note":""},{"id":"s76","date":"2026-11-12","time":"07:15","type":"Flytende","urgent":true,"blood":false,"note":""},{"id":"s77","date":"2026-11-12","time":"12:45","type":"Flytende","urgent":true,"blood":false,"note":""}],"days":{"2026-09-28":{"pain":4,"bloat":4,"relief":"Nei","note":""},"2026-09-29":{"pain":4,"bloat":3,"relief":"Nei","note":"Løpetur 5 km"},"2026-09-30":{"pain":3,"bloat":4,"relief":"Nei","note":""},"2026-10-01":{"pain":5,"bloat":2,"relief":"Ja","note":""},"2026-10-02":{"pain":0,"bloat":3,"relief":null,"note":"Løpetur 5 km"},"2026-10-03":{"pain":1,"bloat":1,"relief":null,"note":""},"2026-10-04":{"pain":1,"bloat":3,"relief":null,"note":""},"2026-10-05":{"pain":8,"bloat":5,"relief":"Ja","note":"Presset på tid hele dagen"},"2026-10-06":{"pain":4,"bloat":3,"relief":"Ja","note":""},"2026-10-07":{"pain":3,"bloat":3,"relief":"Ja","note":"Sov dårlig i natt. Trening 45 min"},"2026-10-08":{"pain":4,"bloat":3,"relief":"Ja","note":""},"2026-10-09":{"pain":4,"bloat":3,"relief":"Ja","note":"Trening 45 min"},"2026-10-10":{"pain":2,"bloat":2,"relief":null,"note":"Gåtur i lunsjen"},"2026-10-11":{"pain":3,"bloat":2,"relief":"Ja","note":"Trening 45 min"},"2026-10-12":{"pain":5,"bloat":5,"relief":"Nei","note":"Stressende dag. Løpetur 5 km"},"2026-10-13":{"pain":4,"bloat":4,"relief":"Ja","note":"Sov dårlig i natt"},"2026-10-14":{"pain":5,"bloat":5,"relief":"Ja","note":"Stressende dag"},"2026-10-15":{"pain":5,"bloat":5,"relief":"Nei","note":"Lite søvn"},"2026-10-16":{"pain":4,"bloat":1,"relief":"Ja","note":""},"2026-10-17":{"pain":4,"bloat":4,"relief":"Nei","note":"Stressende dag"},"2026-10-18":{"pain":5,"bloat":4,"relief":"Nei","note":"Presset på tid hele dagen. Løpetur 5 km"},"2026-10-19":{"pain":5,"bloat":4,"relief":"Ja","note":"Starter melkefri periode (test). "},"2026-10-20":{"pain":0,"bloat":2,"relief":null,"note":"Løpetur 5 km"},"2026-10-21":{"pain":2,"bloat":2,"relief":null,"note":""},"2026-10-22":{"pain":1,"bloat":3,"relief":null,"note":""},"2026-10-23":{"pain":1,"bloat":0,"relief":null,"note":"Gåtur i lunsjen"},"2026-10-24":{"pain":3,"bloat":0,"relief":"Ja","note":"Løpetur 5 km"},"2026-10-25":{"pain":3,"bloat":3,"relief":"Nei","note":"Mye stress på jobb. Løpetur 5 km"},"2026-10-26":{"pain":1,"bloat":0,"relief":null,"note":""},"2026-10-27":{"pain":0,"bloat":0,"relief":null,"note":""},"2026-10-28":{"pain":0,"bloat":1,"relief":null,"note":"Sov dårlig i natt"},"2026-10-29":{"pain":2,"bloat":2,"relief":null,"note":"Kort natt. Løpetur 5 km"},"2026-10-30":{"pain":3,"bloat":2,"relief":"Ja","note":"Stressende dag"},"2026-10-31":{"pain":0,"bloat":3,"relief":null,"note":""},"2026-11-01":{"pain":1,"bloat":2,"relief":null,"note":""},"2026-11-02":{"pain":4,"bloat":3,"relief":"Ja","note":"Melk tilbake i kostholdet. "},"2026-11-03":{"pain":4,"bloat":4,"relief":"Ja","note":"Trening 45 min"},"2026-11-04":{"pain":4,"bloat":3,"relief":"Ja","note":""},"2026-11-05":{"pain":3,"bloat":3,"relief":"Ja","note":""},"2026-11-06":{"pain":3,"bloat":4,"relief":"Ja","note":""},"2026-11-07":{"pain":5,"bloat":4,"relief":"Nei","note":"Gåtur i lunsjen"},"2026-11-08":{"pain":5,"bloat":3,"relief":"Nei","note":""},"2026-11-09":{"pain":4,"bloat":2,"relief":"Nei","note":"Presset på tid hele dagen"},"2026-11-10":{"pain":1,"bloat":3,"relief":null,"note":""},"2026-11-11":{"pain":3,"bloat":2,"relief":"Ja","note":"Styremøte – travel dag"},"2026-11-12":{"pain":6,"bloat":4,"relief":"Ja","note":"Stressende dag"}},"lastDate":"2026-11-12"};
+
+(function () {
+'use strict';
+/* Magedagbok – brukergrensesnitt, del 1: lagring, hjelpere, navigasjon og loggskjermen */
+const VERSION = '1.0';
+const KEY = 'magedagbok.v1', DKEY = 'magedagbok.demo', HKEY = 'magedagbok.hint';
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const nowHM = () => { const t = new Date(); return String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); };
+const isNum = v => typeof v === 'number' && !isNaN(v);
+const DAYS = ['søndag', 'mandag', 'tirsdag', 'onsdag', 'torsdag', 'fredag', 'lørdag'];
+const DSH = ['søn', 'man', 'tir', 'ons', 'tor', 'fre', 'lør'];
+const MON = ['januar', 'februar', 'mars', 'april', 'mai', 'juni', 'juli', 'august', 'september', 'oktober', 'november', 'desember'];
+const MODE = { D: 'Del av ord', O: 'Ordstart', H: 'Helt ord' };
+const TITLES = { logg: 'Magedagbok', historikk: 'Historikk', analyse: 'Analyse', mer: 'Mer', ord: 'Ordliste', innst: 'Innstillinger', info: 'Avføring og røde flagg', rapport: 'Rapport til legen' };
+const dObj = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const longDate = s => { const d = dObj(s); return `${DAYS[d.getDay()]} ${d.getDate()}. ${MON[d.getMonth()]}`; };
+const shortDate = s => { const d = dObj(s); return `${d.getDate()}.${d.getMonth() + 1}.`; };
+const fullDate = s => { const d = dObj(s); return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`; };
+const n1 = v => (isNum(v) ? v.toFixed(1).replace('.', ',') : '–');
+const sg1 = v => (isNum(v) ? (v > 0.05 ? '+' : v < -0.05 ? '−' : '') + Math.abs(v).toFixed(1).replace('.', ',') : '–');
+const pct = v => (isNum(v) ? Math.round(v * 100) + ' %' : '–');
+const sgp = v => (isNum(v) ? (v > 0.005 ? '+' : v < -0.005 ? '−' : '') + Math.round(Math.abs(v) * 100) + ' %' : '–');
+const ALLC = [...Core.CATS, ...Core.FACT];
+const catLabel = c => (ALLC.find(x => x[0] === c) || [c, c, c])[2];
+const typeOf = id => Core.TYPES.find(t => t.id === id) || { col: '#999', bg: '#eee', bri: '' };
+const scaleCol = i => (i <= 3 ? '#28b482' : i <= 6 ? '#e09a00' : '#dc2a2a');
+const mkWords = () => DEFAULT_WORDS.map(([w, m, c]) => ({ w, m, c: Core.parseCodes(c) }));
+
+function fresh() {
+  return { app: 'magedagbok', version: 1, meals: [], stools: [], days: {}, words: mkWords(),
+    settings: { threshold: 3, minDays: 5, window: 2 }, lastBackup: null, created: new Date().toISOString() };
+}
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.app === 'magedagbok') return Object.assign(fresh(), s); } catch (e) { /* tom */ }
+  return fresh();
+}
+function demoState() {
+  const shift = Core.diffDays(DEMO_DATA.lastDate, Core.addDays(Core.localToday(), -1));
+  const sh = d => Core.addDays(d, shift);
+  const days = {};
+  for (const k in DEMO_DATA.days) days[sh(k)] = Object.assign({}, DEMO_DATA.days[k]);
+  return Object.assign(fresh(), {
+    meals: DEMO_DATA.meals.map(m => Object.assign({}, m, { date: sh(m.date) })),
+    stools: DEMO_DATA.stools.map(s => Object.assign({}, s, { date: sh(s.date) })), days, lastBackup: new Date().toISOString(),
+  });
+}
+const params = new URLSearchParams(location.search);
+if (params.get('demo') === '1') sessionStorage.setItem(DKEY, '1');
+let demo = sessionStorage.getItem(DKEY) === '1';
+let S = demo ? demoState() : load();
+function save() {
+  if (demo) return;
+  try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { alert('Kunne ikke lagre: ' + e.message); }
+}
+if (!demo && navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') save(); });
+
+let day = Core.localToday();
+const draft = { meal: '', type: null, urgent: false, blood: false, note: '' };
+const VIEWS = {}, AFTER = {}, ACT = {};
+
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 1800);
+}
+function route() { const h = (location.hash || '#logg').slice(1); return VIEWS[h] ? h : 'logg'; }
+function bannerHTML(v) {
+  let h = '';
+  if (demo) h += `<div class="banner"><span><b>Eksempel med fiktive data.</b> Dine egne data er ikke endret.</span><button class="secondary" data-a="endDemo">Avslutt</button></div>`;
+  const standalone = window.navigator.standalone === true || (window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+  if (!standalone && !demo && v === 'logg' && !localStorage.getItem(HKEY)) {
+    h += `<div class="note">Legg appen på hjemskjermen: trykk på <b>Del</b>-knappen i Safari og velg <b>Legg til på Hjem-skjerm</b>. ` +
+      `Bruk alltid appen derfra. Data i en vanlig Safari-fane er adskilt fra appen. <button class="link" data-a="hideHint">Skjul</button></div>`;
+  }
+  return h;
+}
+function render() {
+  const v = route();
+  $$('nav.tabs a').forEach(a => a.classList.toggle('on', a.dataset.v === v || (a.dataset.v === 'mer' && ['ord', 'info', 'rapport', 'innst'].includes(v))));
+  $('#title').textContent = TITLES[v];
+  $('#view').innerHTML = bannerHTML(v) + VIEWS[v]();
+  if (AFTER[v]) AFTER[v]();
+}
+window.addEventListener('hashchange', () => { closeSheet(); render(); window.scrollTo(0, 0); });
+
+let saveT;
+function setDay(k, v, now = true) {
+  const d = Object.assign({}, S.days[day]);
+  if (v === null || v === undefined || v === '') delete d[k]; else d[k] = v;
+  if (Core.hasDay(d)) S.days[day] = d; else delete S.days[day];
+  clearTimeout(saveT);
+  if (now) save(); else saveT = setTimeout(save, 400);
+}
+function sheet(html) {
+  closeSheet();
+  const bg = document.createElement('div');
+  bg.className = 'sheet-bg'; bg.id = 'sheet';
+  bg.innerHTML = `<div class="sheet" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(bg);
+}
+function closeSheet() { const s = $('#sheet'); if (s) s.remove(); }
+
+/* ---------- Loggskjermen ---------- */
+function scale(k, v) {
+  return `<div class="scale">${Array.from({ length: 11 }, (_, i) => `<button data-a="scale" data-k="${k}" data-v="${i}" class="${v === i ? 'on' : ''}" ` +
+    `style="${v === i ? 'background:' + scaleCol(i) : ''}" aria-label="${i}">${i}</button>`).join('')}</div>`;
+}
+function mealTags(text) {
+  const t = Core.tag(text, S.words);
+  if (!t.known) return '<span class="tag unk">Ukjent – legg til ord</span>';
+  if (!t.cats.length) return '<span class="tag grey">Ingen kjente utløsere</span>';
+  return t.cats.map(c => `<span class="tag">${esc(catLabel(c))}</span>`).join('');
+}
+function entryHTML(it) {
+  const o = it.o;
+  if (it.k === 'meal') {
+    return `<button class="entry" data-a="edit" data-k="meal" data-id="${o.id}"><span class="t">${esc(o.time || '')}</span>` +
+      `<div><div>${esc(o.text)}</div><div class="tags">${mealTags(o.text)}</div></div></button>`;
+  }
+  const ty = typeOf(o.type);
+  const fl = [o.urgent ? '<span class="tag grey">Hastverk</span>' : '', o.blood ? '<span class="tag red">Blod eller slim</span>' : ''].join('');
+  return `<button class="entry" data-a="edit" data-k="stool" data-id="${o.id}"><span class="t">${esc(o.time || '')}</span>` +
+    `<div><div><i class="dot" style="background:${ty.col}"></i><b>${esc(o.type)}</b> <span class="mut">toalettbesøk</span></div>` +
+    `${fl || o.note ? `<div class="tags">${fl}${o.note ? `<span class="mut" style="font-size:13px">${esc(o.note)}</span>` : ''}</div>` : ''}</div></button>`;
+}
+VIEWS.logg = () => {
+  const today = Core.localToday(), isT = day === today;
+  const dd = S.days[day] || {};
+  const items = [...S.meals.filter(m => m.date === day).map(o => ({ k: 'meal', o })), ...S.stools.filter(s => s.date === day).map(o => ({ k: 'stool', o }))]
+    .sort((a, b) => (a.o.time || '').localeCompare(b.o.time || ''));
+  const due = !demo && S.meals.length + S.stools.length > 0 && (!S.lastBackup || Date.now() - Date.parse(S.lastBackup) > 14 * 864e5);
+  const t0 = isT ? nowHM() : '12:00';
+  return `${due ? `<div class="banner"><span>Ta en sikkerhetskopi. Siste: ${S.lastBackup ? fullDate(S.lastBackup.slice(0, 10)) : 'aldri'}.</span><button class="secondary" data-a="backup">Ta nå</button></div>` : ''}
+  <div class="daynav"><button data-a="prev" aria-label="Forrige dag">‹</button>
+   <div class="daylabel">${isT ? 'I dag' : esc(longDate(day))}<small>${isT ? esc(longDate(day)) : '<button class="link" data-a="today">Gå til i dag</button>'}</small></div>
+   <button data-a="next" aria-label="Neste dag" ${isT ? 'disabled' : ''}>›</button></div>
+  <section class="card"><h2>Måltid eller drikke</h2>
+   <textarea id="mealText" rows="2" placeholder="F.eks. 2 brødskiver med brunost og en kaffe latte">${esc(draft.meal)}</textarea>
+   <div id="mealPreview" class="preview"></div>
+   <div class="row"><label class="time">Kl. <input type="time" id="mealTime" value="${t0}"></label><span class="grow"></span><button class="primary" data-a="saveMeal">Lagre</button></div>
+  </section>
+  <section class="card"><h2>Toalettbesøk</h2>
+   <div class="types">${Core.TYPES.map(t => `<button class="type${draft.type === t.id ? ' on' : ''}" data-a="type" data-v="${t.id}" style="--tb:${t.bg};--fg:${t.col}"><b>${t.id}</b><small>${t.bri}</small></button>`).join('')}</div>
+   <div class="chips"><button class="chip${draft.urgent ? ' on' : ''}" data-a="tog" data-v="urgent">Hastverk</button><button class="chip red${draft.blood ? ' on' : ''}" data-a="tog" data-v="blood">Blod eller slim</button></div>
+   <div id="bloodWarn" class="warn${draft.blood ? '' : ' hidden'}">Blod eller slim i avføringen bør sjekkes av lege. Kontakt fastlegen.</div>
+   <input type="text" id="stoolNote" placeholder="Kommentar (valgfritt)" value="${esc(draft.note)}" style="margin-top:10px">
+   <div class="row"><label class="time">Kl. <input type="time" id="stoolTime" value="${t0}"></label><span class="grow"></span><button class="primary" id="saveStool" data-a="saveStool" ${draft.type ? '' : 'disabled'}>Lagre</button></div>
+  </section>
+  <section class="card"><h2>Dagen</h2>
+   <div class="lbl">Magesmerter <span>0 = ingen, 10 = verst tenkelig</span></div>${scale('pain', dd.pain)}
+   <div class="lbl">Oppblåsthet</div>${scale('bloat', dd.bloat)}
+   <div class="lbl">Ble smerten bedre etter toalettbesøk?</div>
+   <div class="chips" style="margin:6px 0 12px">${['Ja', 'Nei'].map(v => `<button class="chip${dd.relief === v ? ' on' : ''}" data-a="relief" data-v="${v}">${v}</button>`).join('')}</div>
+   <div class="lbl">Notat <span>stress, søvn, trening, sykdom, medisiner …</span></div>
+   <textarea id="dayNote" rows="2" placeholder="F.eks. travel dag, sov dårlig" style="margin-top:6px">${esc(dd.note || '')}</textarea>
+   <div id="notePreview" class="preview"></div>
+  </section>
+  <section class="card"><h2>Registrert ${isT ? 'i dag' : esc(shortDate(day))}</h2>${items.length ? items.map(entryHTML).join('') : '<div class="mut">Ingenting registrert ennå.</div>'}</section>`;
+};
+function mealPreview() {
+  const el = $('#mealPreview'); if (!el) return;
+  const v = draft.meal.trim();
+  el.innerHTML = v ? 'Tolkes som: ' + mealTags(v) : '';
+}
+function notePreview() {
+  const el = $('#notePreview'); if (!el) return;
+  const v = ((S.days[day] || {}).note || '').trim();
+  const f = v ? Core.tag(v, S.words).cats.filter(c => Core.FACT.some(x => x[0] === c)) : [];
+  el.innerHTML = f.length ? 'Fanget opp: ' + f.map(c => `<span class="tag fac">${esc(catLabel(c))}</span>`).join(' ') : '';
+}
+AFTER.logg = () => { mealPreview(); notePreview(); };
+
+ACT.prev = () => { day = Core.addDays(day, -1); render(); };
+ACT.next = () => { if (day < Core.localToday()) { day = Core.addDays(day, 1); render(); } };
+ACT.today = () => { day = Core.localToday(); render(); };
+ACT.hideHint = () => { localStorage.setItem(HKEY, '1'); render(); };
+ACT.saveMeal = () => {
+  const el = $('#mealText'); const txt = el.value.trim();
+  if (!txt) { el.focus(); return; }
+  S.meals.push({ id: uid(), date: day, time: $('#mealTime').value || '', text: txt });
+  draft.meal = ''; save(); render(); toast('Måltidet er lagret');
+};
+ACT.type = b => {
+  draft.type = draft.type === b.dataset.v ? null : b.dataset.v;
+  $$('.type').forEach(x => x.classList.toggle('on', x.dataset.v === draft.type));
+  $('#saveStool').disabled = !draft.type;
+};
+ACT.tog = b => {
+  const k = b.dataset.v; draft[k] = !draft[k]; b.classList.toggle('on', draft[k]);
+  if (k === 'blood') $('#bloodWarn').classList.toggle('hidden', !draft.blood);
+};
+ACT.saveStool = () => {
+  if (!draft.type) return;
+  S.stools.push({ id: uid(), date: day, time: $('#stoolTime').value || '', type: draft.type, urgent: draft.urgent, blood: draft.blood, note: draft.note.trim() });
+  const red = draft.blood;
+  Object.assign(draft, { type: null, urgent: false, blood: false, note: '' });
+  save(); render(); toast(red ? 'Lagret. Husk å kontakte fastlegen.' : 'Toalettbesøket er lagret');
+};
+ACT.scale = b => {
+  const k = b.dataset.k, v = +b.dataset.v;
+  setDay(k, (S.days[day] || {})[k] === v ? null : v);
+  const cur = (S.days[day] || {})[k];
+  b.parentElement.querySelectorAll('button').forEach(x => {
+    const on = cur === +x.dataset.v; x.classList.toggle('on', on); x.style.background = on ? scaleCol(+x.dataset.v) : '';
+  });
+};
+ACT.relief = b => {
+  setDay('relief', (S.days[day] || {}).relief === b.dataset.v ? null : b.dataset.v);
+  const cur = (S.days[day] || {}).relief;
+  b.parentElement.querySelectorAll('.chip').forEach(x => x.classList.toggle('on', cur === x.dataset.v));
+};
+
+/* ---------- Endre eller slette en registrering ---------- */
+let ed = null;
+function openEdit(k, id) {
+  const o = (k === 'meal' ? S.meals : S.stools).find(x => x.id === id);
+  if (!o) return;
+  ed = { k, id, type: o.type, urgent: !!o.urgent, blood: !!o.blood };
+  const when = `<div class="row"><label class="time">Dato <input type="date" id="eDate" value="${o.date}" style="width:150px"></label>` +
+    `<label class="time">Kl. <input type="time" id="eTime" value="${esc(o.time || '')}"></label></div>`;
+  const body = k === 'meal'
+    ? `<h3>Endre måltid</h3><textarea id="eText" rows="3">${esc(o.text)}</textarea>${when}`
+    : `<h3>Endre toalettbesøk</h3><div class="types">${Core.TYPES.map(t => `<button class="type${o.type === t.id ? ' on' : ''}" data-a="etype" data-v="${t.id}" style="--tb:${t.bg};--fg:${t.col}"><b>${t.id}</b><small>${t.bri}</small></button>`).join('')}</div>` +
+      `<div class="chips"><button class="chip${o.urgent ? ' on' : ''}" data-a="etog" data-v="urgent">Hastverk</button><button class="chip red${o.blood ? ' on' : ''}" data-a="etog" data-v="blood">Blod eller slim</button></div>` +
+      `<input type="text" id="eNote" value="${esc(o.note || '')}" placeholder="Kommentar" style="margin-top:10px">${when}`;
+  sheet(body + `<div class="row" style="margin-top:16px"><button class="danger-btn" data-a="del">Slett</button><span class="grow"></span><button class="secondary" data-a="close">Avbryt</button><button class="primary" data-a="upd">Lagre</button></div>`);
+}
+ACT.edit = b => openEdit(b.dataset.k, b.dataset.id);
+ACT.close = () => closeSheet();
+ACT.etype = b => { ed.type = b.dataset.v; $$('#sheet .type').forEach(x => x.classList.toggle('on', x.dataset.v === ed.type)); };
+ACT.etog = b => { const k = b.dataset.v; ed[k] = !ed[k]; b.classList.toggle('on', ed[k]); };
+ACT.upd = () => {
+  const list = ed.k === 'meal' ? S.meals : S.stools; const o = list.find(x => x.id === ed.id); if (!o) return;
+  const date = $('#eDate').value || o.date, time = $('#eTime').value || '';
+  if (ed.k === 'meal') { const txt = $('#eText').value.trim(); if (!txt) return; Object.assign(o, { text: txt, date, time }); }
+  else Object.assign(o, { type: ed.type, urgent: ed.urgent, blood: ed.blood, note: $('#eNote').value.trim(), date, time });
+  save(); closeSheet(); render(); toast('Endringen er lagret');
+};
+ACT.del = () => {
+  if (!confirm('Slette denne registreringen?')) return;
+  if (ed.k === 'meal') S.meals = S.meals.filter(x => x.id !== ed.id); else S.stools = S.stools.filter(x => x.id !== ed.id);
+  save(); closeSheet(); render(); toast('Slettet');
+};
+
+document.addEventListener('click', e => {
+  if (e.target.id === 'sheet') { closeSheet(); return; }
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const f = ACT[b.dataset.a]; if (f) { e.preventDefault(); f(b, e); }
+});
+document.addEventListener('input', e => {
+  const id = e.target.id;
+  if (id === 'mealText') { draft.meal = e.target.value; mealPreview(); }
+  else if (id === 'stoolNote') draft.note = e.target.value;
+  else if (id === 'dayNote') { setDay('note', e.target.value, false); notePreview(); }
+  else if (id === 'wordSearch') filterWords(e.target.value);
+});
+
+/* Magedagbok – brukergrensesnitt, del 2: historikk, analyse, mer, ordliste, rapport og sikkerhetskopi */
+
+/* ---------- Historikk ---------- */
+VIEWS.historikk = () => {
+  const set = new Set([...S.meals.map(m => m.date), ...S.stools.map(s => s.date), ...Object.keys(S.days).filter(k => Core.hasDay(S.days[k]))]);
+  const ds = [...set].sort().reverse();
+  if (!ds.length) return '<section class="card"><h2>Ingen data ennå</h2><p class="mut">Registreringene dine vises her, dag for dag.</p></section>';
+  return ds.map(d => {
+    const dd = S.days[d] || {};
+    const st = S.stools.filter(s => s.date === d).sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    const ml = S.meals.filter(m => m.date === d);
+    const unk = ml.filter(m => !Core.tag(m.text, S.words).known).length;
+    const sym = [isNum(dd.pain) ? `Smerte ${dd.pain}` : '', isNum(dd.bloat) ? `Oppblåst ${dd.bloat}` : ''].filter(Boolean).join(' · ') || '<span class="mut">Ingen symptomscore</span>';
+    const dots = st.map(s => `<i class="dot" style="background:${typeOf(s.type).col}"></i>`).join('');
+    return `<button class="hrow" data-a="goto" data-v="${d}"><div class="hdate">${DSH[dObj(d).getDay()]}<small>${shortDate(d)}</small></div>` +
+      `<div class="hinfo">${sym}<div class="m">${dots} ${st.length} besøk · ${ml.length} måltider${unk ? ` · ${unk} ukjente` : ''}` +
+      `${st.some(s => s.blood) ? ' · <b style="color:var(--red)">blod/slim</b>' : ''}</div></div></button>`;
+  }).join('');
+};
+ACT.goto = b => { day = b.dataset.v; location.hash = '#logg'; };
+
+/* ---------- Analyse ---------- */
+const SIGCLS = { 'Tydelig signal': 'p-tydelig', 'Mulig signal': 'p-mulig', 'Ingen tydelig': 'p-ingen', 'For lite data': 'p-lite' };
+const SIGORD = { 'Tydelig signal': 0, 'Mulig signal': 1, 'Ingen tydelig': 2, 'For lite data': 3 };
+const kpi = (v, l) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`;
+const yes = ok => (ok === null ? '<span class="status s-nei">–</span>' : ok ? '<span class="status s-ja">Ja</span>' : '<span class="status s-nei">Nei</span>');
+function trigHTML(t, i) {
+  return `<div class="trig${i === 0 ? ' first' : ''}"><div class="trh"><b>${esc(t.name)}${t.kind === 'faktor' ? ' <span class="mut" style="font-weight:400">(notat)</span>' : ''}</b>` +
+    `<span class="pill ${SIGCLS[t.signal]}">${t.signal}</span></div>` +
+    `<div class="trd">Smerte <b>${sg1(t.painDiff)}</b> · Oppblåst <b>${sg1(t.bloatDiff)}</b> · Løs avf. <b>${sgp(t.looseDiff)}</b></div>` +
+    `<div class="trn">${t.nWith} dager med, ${t.nWithout} dager uten</div></div>`;
+}
+function weekChart(W) {
+  if (!W.length) return '';
+  const w = 320, h = 150, L = 24, B = 20, T = 8, R = 8, n = W.length;
+  const x = i => (n === 1 ? L + (w - L - R) / 2 : L + (i * (w - L - R)) / (n - 1));
+  const y = v => T + (h - T - B) * (1 - Math.min(v, 10) / 10);
+  const series = [['avgPain', '#dc2a2a', 'Magesmerter'], ['avgBloat', '#e09a00', 'Oppblåsthet'], ['visitsPerDay', '#007272', 'Toalettbesøk per dag']];
+  let s = `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="Utvikling per uke">`;
+  for (const g of [0, 5, 10]) s += `<line x1="${L}" x2="${w - R}" y1="${y(g)}" y2="${y(g)}" stroke="#dde6e4"/><text x="${L - 6}" y="${y(g) + 4}" font-size="10" text-anchor="end" fill="#5e7275">${g}</text>`;
+  const step = Math.ceil(n / 8);
+  W.forEach((wk, i) => { if (i % step === 0 || i === n - 1) s += `<text x="${x(i)}" y="${h - 5}" font-size="10" text-anchor="middle" fill="#5e7275">u${wk.week}</text>`; });
+  for (const [k, col] of series) {
+    const segs = []; let seg = [];
+    W.forEach((wk, i) => { const v = wk[k]; if (v === null || v === undefined) { if (seg.length) segs.push(seg); seg = []; } else seg.push([x(i), y(v)]); });
+    if (seg.length) segs.push(seg);
+    for (const sg of segs) {
+      if (sg.length > 1) s += `<polyline fill="none" stroke="${col}" stroke-width="2.5" points="${sg.map(p => p.map(q => q.toFixed(1)).join(',')).join(' ')}"/>`;
+      sg.forEach(p => (s += `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="${col}"/>`));
+    }
+  }
+  return s + '</svg>' + `<div class="chips" style="margin:2px 0 8px">${series.map(([, c, l]) => `<span class="tag" style="background:#fff;color:${c}">● ${l}</span>`).join('')}</div>`;
+}
+VIEWS.analyse = () => {
+  const R = Core.analyze(S);
+  if (R.empty) return '<section class="card"><h2>Ingen data ennå</h2><p class="mut">Analysen fylles ut når du har logget noen dager. Vil du se hvordan den ser ut? Gå til <b>Mer → Vis eksempel</b>.</p></section>';
+  const k = R.key, r = R.rome, D = R.dist;
+  let h = '';
+  if (k.redFlags) h += `<div class="warn" style="margin:0 0 12px">Du har registrert blod eller slim ${k.redFlags} ${k.redFlags === 1 ? 'gang' : 'ganger'}. Kontakt fastlegen.</div>`;
+  if (k.symptomDays < 14) h += `<div class="note">Du har ${k.symptomDays} ${k.symptomDays === 1 ? 'dag' : 'dager'} med symptomscore. Vent med å tolke utløserne til du har logget i 2–4 uker.</div>`;
+  h += `<section class="card"><h2>Nøkkeltall</h2><div class="kpis">${kpi(k.symptomDays, 'dager med symptomscore')}${kpi(n1(k.visitsPerDay), 'toalettbesøk per dag')}` +
+    `${kpi(n1(k.avgPain), 'magesmerter i snitt (0–10)')}${kpi(n1(k.avgBloat), 'oppblåsthet i snitt (0–10)')}${kpi(n1(k.painDaysPerWeek), 'smertedager per uke')}${kpi(k.meals, 'måltider registrert')}</div>` +
+    `${k.unknownMeals ? `<div class="preview">${k.unknownMeals} måltider har ingen kjente ord. Se «Ukjente ord» nederst.</div>` : ''}</section>`;
+  const mx = Math.max(1, ...Core.TYPES.map(t => D.counts[t.id]));
+  h += `<section class="card"><h2>Avføringstyper</h2>${Core.TYPES.map(t => `<div class="bar"><span class="bl">${t.id}</span><span class="bt"><i style="width:${(D.counts[t.id] / mx) * 100}%;background:${t.col}"></i></span>` +
+    `<span class="bv">${D.counts[t.id]} · ${pct(D.sum ? D.counts[t.id] / D.sum : null)}</span></div>`).join('')}<div class="preview">${D.sum} besøk. Løs eller flytende: ${pct(D.looseShare)}.</div></section>`;
+  const b = v => (isNum(v) ? v : null);
+  h += `<section class="card"><h2>IBS-mønster (Rom IV)</h2><table class="t">` +
+    `<tr><td>Smertedager per uke, minst 1</td><td>${n1(r.painDaysPerWeek)}</td><td>${yes(b(r.painDaysPerWeek) === null ? null : r.painDaysPerWeek >= 1)}</td></tr>` +
+    `<tr><td>Smerten blir bedre etter toalettbesøk</td><td>${pct(r.relief)}</td><td>${yes(b(r.relief) === null ? null : r.relief >= 0.5)}</td></tr>` +
+    `<tr><td>Harde, over 25 %</td><td>${pct(r.hardShare)}</td><td>${yes(b(r.hardShare) === null ? null : r.hardShare > 0.25)}</td></tr>` +
+    `<tr><td>Løse eller flytende, over 25 %</td><td>${pct(r.looseShare)}</td><td>${yes(b(r.looseShare) === null ? null : r.looseShare > 0.25)}</td></tr></table>` +
+    `<p><b>${esc(r.pattern)}</b></p><p class="preview">Rom IV: magesmerter minst 1 dag per uke de siste 3 månedene, knyttet til toalettbesøk eller endret avføring. ` +
+    `Legen stiller diagnosen etter at andre årsaker er utelukket. Dette er ikke en diagnose.</p></section>`;
+  const tr = R.triggers.slice().sort((a, c) => SIGORD[a.signal] - SIGORD[c.signal] || (isNum(c.painDiff) ? c.painDiff : -9) - (isNum(a.painDiff) ? a.painDiff : -9));
+  const win = R.settings.window;
+  h += `<section class="card"><h2>Mulige utløsere</h2><p class="preview" style="margin-top:0">Mat: dager du har spist kategorien ${win > 1 ? `(samme dag eller inntil ${win - 1} ${win - 1 === 1 ? 'døgn' : 'døgn'} før)` : '(samme dag)'} mot dager uten. ` +
+    `Stress, søvn og trening: fra notatet samme dag. Positive tall betyr mer plager. Sammenheng er ikke bevis. Test ved å kutte ut i 2–4 uker.</p>${tr.map(trigHTML).join('')}</section>`;
+  h += `<section class="card"><h2>Uke for uke</h2>${weekChart(R.weeks)}<div class="scroll"><table class="t"><tr><th>Uke</th><th>Smerte</th><th>Oppbl.</th><th>Besøk/d</th><th>Løs</th><th>Hard</th></tr>` +
+    R.weeks.slice().reverse().map(w => `<tr><td>${w.week} <span class="mut">(${shortDate(w.start)})</span></td><td>${n1(w.avgPain)}</td><td>${n1(w.avgBloat)}</td><td>${n1(w.visitsPerDay)}</td><td>${pct(w.looseShare)}</td><td>${pct(w.hardShare)}</td></tr>`).join('') +
+    '</table></div></section>';
+  h += `<section class="card"><h2>Ukjente ord</h2>${R.unknown.length
+    ? `<p class="preview" style="margin-top:0">Ord fra måltidene som ordlisten ikke kjenner. Trykk på et ord for å legge det til.</p><div class="chips">${R.unknown.slice(0, 40).map(([w, n]) => `<button class="chip" data-a="addWord" data-v="${esc(w)}">${esc(w)} <span class="mut">${n}</span></button>`).join('')}</div>`
+    : '<p class="mut">Ordlisten kjenner alle ordene du har brukt.</p>'}</section>`;
+  return h;
+};
+
+/* ---------- Mer ---------- */
+VIEWS.mer = () => `<section class="card"><h2>Sikkerhetskopi</h2><p class="preview" style="margin-top:0">Dataene ligger bare på denne telefonen. Lagre en kopi i Filer-appen jevnlig, for eksempel i iCloud Drive. ` +
+  `Siste kopi: <b>${S.lastBackup ? fullDate(S.lastBackup.slice(0, 10)) : 'aldri'}</b>.</p><div class="menu">` +
+  '<button data-a="backup">Lag sikkerhetskopi<span class="sub">JSON-fil</span></button><button data-a="restore">Gjenopprett fra kopi<span class="sub">erstatter dataene</span></button>' +
+  '<button data-a="csv">Eksporter til Excel<span class="sub">3 CSV-filer</span></button></div><input type="file" id="restoreFile" accept=".json,application/json" class="hidden"></section>' +
+  '<section class="card"><h2>Til legen</h2><div class="menu"><a href="#rapport">Rapport til legetimen<span class="sub">›</span></a><a href="#info">Avføringstyper og røde flagg<span class="sub">›</span></a></div></section>' +
+  `<section class="card"><h2>Tilpasning</h2><div class="menu"><a href="#ord">Ordliste<span class="sub">${S.words.length} ord ›</span></a><a href="#innst">Innstillinger for analysen<span class="sub">›</span></a></div></section>` +
+  `<section class="card"><h2>Annet</h2><div class="menu">${demo ? '<button data-a="endDemo">Avslutt eksempel</button>' : '<button data-a="startDemo">Vis eksempel med fiktive data<span class="sub">endrer ikke dine data</span></button>'}` +
+  `<button data-a="wipe" style="color:var(--red)">Slett alle data på telefonen</button></div><p class="preview">Magedagbok ${VERSION}. Appen sender ingen data noe sted. Den stiller ingen diagnose.</p></section>`;
+
+const stepper = (k, l, d, min, max) => `<div class="step"><div><b>${l}</b><div class="preview">${d}</div></div><div class="stp">` +
+  `<button data-a="stp" data-k="${k}" data-v="-1" data-min="${min}" data-max="${max}" aria-label="Mindre">−</button><span id="st-${k}">${S.settings[k]}</span>` +
+  `<button data-a="stp" data-k="${k}" data-v="1" data-min="${min}" data-max="${max}" aria-label="Mer">+</button></div></div>`;
+VIEWS.innst = () => '<section class="card"><h2>Innstillinger for analysen</h2>' +
+  stepper('threshold', 'Smerteterskel for «smertedag»', 'Magesmerter på dette nivået eller høyere teller som smertedag.', 0, 10) +
+  stepper('minDays', 'Minste antall dager per gruppe', 'Utløserne viser «For lite data» til begge gruppene har så mange dager.', 2, 60) +
+  stepper('window', 'Tidsvindu for mat (døgn)', '2 = samme dag og dagen før (anbefalt). 1 = bare samme dag.', 1, 3) +
+  '</section><a class="link" href="#mer">‹ Tilbake</a>';
+ACT.stp = b => {
+  const k = b.dataset.k; const v = Math.min(+b.dataset.max, Math.max(+b.dataset.min, S.settings[k] + +b.dataset.v));
+  S.settings[k] = v; save(); $('#st-' + k).textContent = v;
+};
+
+/* ---------- Ordliste ---------- */
+function wordRow(w, i) {
+  const tags = Object.entries(w.c).map(([k, v]) => `<span class="tag${v < 0 ? ' unk' : ''}">${v < 0 ? 'unntak: ' : ''}${esc(catLabel(k))}</span>`).join('') || '<span class="tag grey">kjent ord</span>';
+  return `<button class="wordrow" data-a="editWord" data-i="${i}" data-w="${esc(w.w.toLowerCase())}"><span><b>${esc(w.w)}</b> <span class="mut" style="font-size:13px">${MODE[w.m]}</span></span><span class="tags">${tags}</span></button>`;
+}
+VIEWS.ord = () => {
+  const list = S.words.map((w, i) => [w, i]).sort((a, b) => a[0].w.localeCompare(b[0].w, 'nb'));
+  return `<section class="card"><h2>Ordliste</h2><p class="preview" style="margin-top:0">Appen leter etter disse ordene i det du skriver. Trykk på et ord for å endre det.</p>` +
+    `<input type="search" id="wordSearch" placeholder="Søk i ${S.words.length} ord"><div class="row"><button class="primary" data-a="addWord" data-v="">Nytt ord</button><span class="grow"></span>` +
+    `<button class="link" data-a="resetWords">Tilbakestill</button></div><div id="wordList" style="margin-top:6px">${list.map(([w, i]) => wordRow(w, i)).join('')}</div></section><a class="link" href="#mer">‹ Tilbake</a>`;
+};
+function filterWords(q) { q = q.trim().toLowerCase(); $$('#wordList .wordrow').forEach(r => r.classList.toggle('hidden', !!q && !r.dataset.w.includes(q))); }
+let we = null;
+function catBtn(k, l) { const v = we.c[k]; return `<button class="cat${v > 0 ? ' x' : v < 0 ? ' neg' : ''}" data-a="wcat" data-v="${k}"><span>${esc(l)}</span><span>${v > 0 ? '✓' : v < 0 ? 'unntak' : ''}</span></button>`; }
+function openWord(i, preset) {
+  const w = i >= 0 ? S.words[i] : { w: preset || '', m: 'D', c: {} };
+  we = { i, m: w.m, c: Object.assign({}, w.c) };
+  sheet(`<h3>${i >= 0 ? 'Endre ord' : 'Nytt ord'}</h3><input type="text" id="wWord" value="${esc(w.w)}" placeholder="Ord eller uttrykk" autocapitalize="off" autocorrect="off">` +
+    `<div class="lbl" style="margin-top:12px">Treff</div><div class="seg">${['D', 'O', 'H'].map(m => `<button data-a="wmode" data-v="${m}" class="${we.m === m ? 'on' : ''}">${MODE[m]}</button>`).join('')}</div>` +
+    '<div class="preview">«Del av ord»: «melk» finner også «lettmelk». «Ordstart»: «øl» finner «ølen», men ikke «pølse». «Helt ord»: «is» finner bare «is».</div>' +
+    '<div class="lbl" style="margin-top:12px">Kategorier <span>trykk én gang = hører til, to ganger = unntak</span></div>' +
+    `<div class="catgrid">${ALLC.map(([k, , l]) => catBtn(k, l)).join('')}</div><p class="preview">Uten kategori blir ordet et kjent ord uten utløser, for eksempel «kylling».</p>` +
+    `<div class="row" style="margin-top:14px">${i >= 0 ? '<button class="danger-btn" data-a="wdel">Slett</button>' : ''}<span class="grow"></span><button class="secondary" data-a="close">Avbryt</button><button class="primary" data-a="wsave">Lagre</button></div>`);
+}
+ACT.addWord = b => openWord(-1, b.dataset.v);
+ACT.editWord = b => openWord(+b.dataset.i);
+ACT.wmode = b => { we.m = b.dataset.v; $$('#sheet .seg button').forEach(x => x.classList.toggle('on', x.dataset.v === we.m)); };
+ACT.wcat = b => {
+  const k = b.dataset.v; const v = we.c[k];
+  if (!v) we.c[k] = 1; else if (v > 0) we.c[k] = -1; else delete we.c[k];
+  b.outerHTML = catBtn(k, catLabel(k));
+};
+ACT.wsave = () => {
+  const w = $('#wWord').value.trim();
+  if (!w) { $('#wWord').focus(); return; }
+  const o = { w, m: we.m, c: we.c };
+  if (we.i >= 0) S.words[we.i] = o; else S.words.push(o);
+  save(); closeSheet(); render(); toast('Ordlisten er oppdatert');
+};
+ACT.wdel = () => { if (!confirm('Slette ordet fra ordlisten?')) return; S.words.splice(we.i, 1); save(); closeSheet(); render(); };
+ACT.resetWords = () => { if (!confirm('Tilbakestille ordlisten til standard? Ord du har lagt til, forsvinner.')) return; S.words = mkWords(); save(); render(); toast('Ordlisten er tilbakestilt'); };
+
+/* ---------- Informasjon ---------- */
+VIEWS.info = () => `<section class="card"><h2>Avføringstyper</h2><table class="t"><tr><th>Type</th><th style="text-align:left">Slik ser den ut</th><th>Bristol</th></tr>` +
+  Core.TYPES.map(t => `<tr><td><i class="dot" style="background:${t.col}"></i><b>${t.id}</b></td><td style="text-align:left;white-space:normal">${t.desc}</td><td>${t.bri.replace('Bristol ', '')}</td></tr>`).join('') +
+  '</table><p class="preview">Grensene følger Rom IV-kriteriene: Hard = Bristol 1–2, Løs og Flytende = Bristol 6–7.</p></section>' +
+  '<section class="card"><h2 style="color:var(--red)">Røde flagg – kontakt fastlegen uten å vente</h2><ul class="flags">' +
+  ['Blod i avføringen, eller svart og tjæreaktig avføring', 'Vekttap du ikke kan forklare', 'Mageplager eller diaré som vekker deg om natten', 'Feber, eller at du føler deg generelt syk',
+    'Blodmangel (lav hemoglobin) eller jernmangel', 'Nye mageplager etter fylte 50 år', 'Tykktarmskreft, cøliaki eller inflammatorisk tarmsykdom (Crohns sykdom, ulcerøs kolitt) i nær familie']
+    .map(x => `<li>${x}</li>`).join('') + '</ul></section>' +
+  '<section class="card"><h2>Før legetimen</h2><ul class="flags"><li>Vis legen rapporten under <b>Mer → Rapport til legetimen</b>.</li>' +
+  '<li>Ikke kutt ut gluten før legen har testet deg for cøliaki. Testen blir upålitelig hvis du allerede spiser glutenfritt.</li>' +
+  '<li>Legen tar ofte blodprøver og en avføringsprøve (kalprotektin) for å utelukke andre sykdommer.</li>' +
+  '<li>Lav-FODMAP-kost hjelper mange med IBS. Gjør den gjerne med veiledning fra fastlege eller klinisk ernæringsfysiolog.</li></ul></section>' +
+  `<section class="card"><h2>Kategoriene appen ser etter</h2><table class="t">${ALLC.map(c => `<tr><td><b>${c[1]}</b><div class="preview" style="margin:0">${c[3]}</div></td></tr>`).join('')}</table></section>` +
+  '<a class="link" href="#mer">‹ Tilbake</a>';
+
+/* ---------- Rapport til legen ---------- */
+VIEWS.rapport = () => {
+  const R = Core.analyze(S);
+  const top = '<div class="noprint row" style="margin:0 0 12px"><a class="link" href="#mer">‹ Tilbake</a><span class="grow"></span><button class="primary" data-a="print">Skriv ut / lagre PDF</button></div>';
+  if (R.empty) return top + '<section class="card">Ingen data ennå.</section>';
+  const k = R.key, D = R.dist, r = R.rome;
+  return top + `<section class="card"><h2>Mage- og matdagbok – oppsummering</h2><p>Periode: <b>${fullDate(k.from)}–${fullDate(k.to)}</b>. ${k.symptomDays} dager med symptomscore, ${k.visits} toalettbesøk og ${k.meals} måltider.</p>` +
+    `<table class="t"><tr><td>Toalettbesøk per dag</td><td>${n1(k.visitsPerDay)}</td></tr><tr><td>Magesmerter i snitt (0–10)</td><td>${n1(k.avgPain)}</td></tr>` +
+    `<tr><td>Oppblåsthet i snitt (0–10)</td><td>${n1(k.avgBloat)}</td></tr><tr><td>Smertedager per uke (smerte ≥ ${R.settings.threshold})</td><td>${n1(k.painDaysPerWeek)}</td></tr>` +
+    `<tr><td>Smerten bedre etter toalettbesøk</td><td>${pct(r.relief)}</td></tr><tr><td>Besøk med blod eller slim</td><td>${k.redFlags}</td></tr></table></section>` +
+    `<section class="card"><h2>Avføringstyper</h2><table class="t"><tr><th>Type</th><th>Bristol</th><th>Antall</th><th>Andel</th></tr>` +
+    Core.TYPES.map(t => `<tr><td>${t.id}</td><td>${t.bri.replace('Bristol ', '')}</td><td>${D.counts[t.id]}</td><td>${pct(D.sum ? D.counts[t.id] / D.sum : null)}</td></tr>`).join('') +
+    `</table><p><b>Mønster:</b> ${esc(r.pattern)}</p></section>` +
+    `<section class="card"><h2>Mulige utløsere</h2><div class="scroll"><table class="t"><tr><th>Kategori</th><th>Dager med/uten</th><th>Smerte</th><th>Oppbl.</th><th>Løs</th><th>Signal</th></tr>` +
+    R.triggers.slice().sort((a, c) => SIGORD[a.signal] - SIGORD[c.signal]).map(t => `<tr><td>${esc(t.name)}</td><td>${t.nWith}/${t.nWithout}</td><td>${sg1(t.painDiff)}</td><td>${sg1(t.bloatDiff)}</td><td>${sgp(t.looseDiff)}</td><td>${t.signal}</td></tr>`).join('') +
+    `</table></div><p class="preview">Forskjell i snitt mellom dager med og uten kategorien. Mat: samme dag eller ${R.settings.window - 1} døgn før.</p></section>` +
+    `<section class="card"><h2>Uke for uke</h2>${weekChart(R.weeks)}<div class="scroll"><table class="t"><tr><th>Uke</th><th>Smerte</th><th>Oppbl.</th><th>Besøk/d</th><th>Løs</th><th>Hard</th><th>Smertedager</th></tr>` +
+    R.weeks.map(w => `<tr><td>${w.week} (${shortDate(w.start)})</td><td>${n1(w.avgPain)}</td><td>${n1(w.avgBloat)}</td><td>${n1(w.visitsPerDay)}</td><td>${pct(w.looseShare)}</td><td>${pct(w.hardShare)}</td><td>${w.painDays === null ? '–' : w.painDays}</td></tr>`).join('') +
+    '</table></div></section><p class="preview">Registrert av pasienten selv i appen Magedagbok. Avføringstyper: Hard = Bristol 1–2, Normal = 3–5, Løs = 6, Flytende = 7. Dette er ikke en diagnose.</p>';
+};
+ACT.print = () => window.print();
+
+/* ---------- Sikkerhetskopi og eksport ---------- */
+async function shareOrDownload(files, title) {
+  try {
+    if (navigator.canShare && navigator.canShare({ files })) { await navigator.share({ files, title }); return true; }
+  } catch (e) { if (e && e.name === 'AbortError') return false; }
+  for (const f of files) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(f); a.download = f.name;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+  }
+  return true;
+}
+ACT.backup = async () => {
+  if (demo) { toast('Ikke tilgjengelig i eksempelet'); return; }
+  const f = new File([JSON.stringify({ app: 'magedagbok', version: 1, exported: new Date().toISOString(), data: S })], `magedagbok-${Core.localToday()}.json`, { type: 'application/json' });
+  if (await shareOrDownload([f], 'Magedagbok – sikkerhetskopi')) { S.lastBackup = new Date().toISOString(); save(); render(); toast('Sikkerhetskopien er laget'); }
+};
+ACT.restore = () => $('#restoreFile').click();
+document.addEventListener('change', async e => {
+  if (e.target.id !== 'restoreFile') return;
+  const file = e.target.files[0]; if (!file) return;
+  try {
+    const j = JSON.parse(await file.text()); const d = j.data || j;
+    if (j.app !== 'magedagbok' || !Array.isArray(d.meals) || !Array.isArray(d.stools)) throw new Error('Filen er ikke en sikkerhetskopi fra Magedagbok.');
+    if (!confirm(`Kopien har ${d.meals.length} måltider og ${d.stools.length} toalettbesøk. Den erstatter dataene på telefonen. Fortsette?`)) return;
+    if (demo) ACT.endDemo();
+    S = Object.assign(fresh(), d); save(); render(); toast('Dataene er gjenopprettet');
+  } catch (err) { alert('Kunne ikke lese filen: ' + err.message); } finally { e.target.value = ''; }
+});
+ACT.csv = async () => {
+  const q = v => { v = v === null || v === undefined ? '' : String(v); return /[;"\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const csv = rows => '\ufeff' + rows.map(r => r.map(q).join(';')).join('\r\n');
+  const cmp = (a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || ''));
+  const m = [['Dato', 'Kl.', 'Hva spiste eller drakk du?', 'Tolket som']].concat(S.meals.slice().sort(cmp).map(x => {
+    const t = Core.tag(x.text, S.words);
+    return [x.date, x.time, x.text, t.known ? t.cats.map(catLabel).join(', ') || 'Ingen kjente utløsere' : 'Ukjent'];
+  }));
+  const t = [['Dato', 'Kl.', 'Avføring', 'Bristol', 'Hastverk', 'Blod eller slim', 'Kommentar']].concat(S.stools.slice().sort(cmp).map(x => [x.date, x.time, x.type, typeOf(x.type).bri.replace('Bristol ', ''), x.urgent ? 'Ja' : '', x.blood ? 'Ja' : '', x.note]));
+  const d = [['Dato', 'Magesmerter', 'Oppblåsthet', 'Bedre etter toalettbesøk', 'Notat']].concat(Object.keys(S.days).sort().filter(k => Core.hasDay(S.days[k])).map(k => { const x = S.days[k]; return [k, x.pain, x.bloat, x.relief, x.note]; }));
+  const st = Core.localToday();
+  await shareOrDownload([new File([csv(m)], `maltider-${st}.csv`, { type: 'text/csv' }), new File([csv(t)], `toalett-${st}.csv`, { type: 'text/csv' }), new File([csv(d)], `dagslogg-${st}.csv`, { type: 'text/csv' })], 'Magedagbok – eksport');
+};
+ACT.startDemo = () => { sessionStorage.setItem(DKEY, '1'); demo = true; S = demoState(); location.hash = '#analyse'; render(); };
+ACT.endDemo = () => { sessionStorage.removeItem(DKEY); demo = false; S = load(); day = Core.localToday(); render(); };
+ACT.wipe = () => {
+  if (demo) { toast('Avslutt eksempelet først'); return; }
+  if (!confirm('Slette ALLE data på telefonen? Dette kan ikke angres.')) return;
+  if (!confirm('Er du sikker? Har du tatt en sikkerhetskopi?')) return;
+  localStorage.removeItem(KEY); S = fresh(); day = Core.localToday(); location.hash = '#logg'; render(); toast('Alle data er slettet');
+};
+
+/* ---------- Start ---------- */
+render();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+
+})();
+</script>
+</body>
+</html>
